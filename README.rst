@@ -19,16 +19,41 @@ TSPLIB 95 is a library for working with TSPLIB 95 files.
 * Free software: Apache Software License 2.0
 * Documentation: https://tsplib95.readthedocs.io.
 
-For now, documentation is light and there are some things missing.
+For now...
+
+* documentation is really light
+* only 3.6 is supported (I am willing to remove f-strings if there is support; I might also spontaneously decide to do that)
+* there are some things missing (looking at you, crystallography distance functions)
 
 Features
 --------
 
-* read TSPLIB95 files
-* supports all explicit edge weight formats
-* supports all distance functions (except x-ray crystallography for now)
-* convert problems into ``networkx.Graph`` instances
-* CLI program to print a tabular summary of one or more TSPLIB95 files
+* read and use TSPLIB95 files like a boss
+* easily convert problems into ``networkx.Graph`` instances
+* supports and implements the following ``EDGE_WEIGHT_TYPE``s:
+    - ``EXPLICIT``
+    - ``EUC_2D``
+    - ``EUC_3D``
+    - ``MAX_2D``
+    - ``MAX_3D``
+    - ``MAN_2D``
+    - ``MAN_3D``
+    - ``CEIL_2D``
+    - ``GEO``
+    - ``ATT``
+* supports the following ``EDGE_WEIGHT_FORMAT``s:
+    - ``FULL_MATRIX``
+    - ``UPPER_ROW``
+    - ``LOWER_ROW``
+    - ``UPPER_DIAG_ROW``
+    - ``LOWER_DIAG_ROW``
+    - ``UPPER_COL``
+    - ``LOWER_COL``
+    - ``UPPER_DIAG_COL``
+    - ``LOWER_DIAG_COL``
+* supports ``SPECIAL`` ``FUNCTION`` edge weights too
+
+It also has a CLI program to print a tabular summary of one or more TSPLIB95 files. No idea why anyone would want that, but there you have it.
 
 
 Usage
@@ -41,6 +66,12 @@ Loading problems and solutions is easy.
     >>> import tsplib95
     >>>
     >>> problem = tsplib95.load_problem('ulysses16.tsp')
+    >>> problem
+    <tsplib95.models.Problem at 0x105030d30>
+    >>> solution = tsplib95.load_solution('ulysses16.opt.tour')
+    >>> solution
+    <tsplib95.models.Solution at 0x104314d68>
+
 
 Both have the base attributes, but let's focus on a problem first:
 
