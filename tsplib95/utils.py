@@ -6,11 +6,22 @@ from . import models
 
 
 def load_problem(filepath, special=None):
+    """Load a problem at the given filepath.
+
+    :param callable special: special/custom distance function
+    :return: problem instance
+    :rtype: :class:`~Problem`
+    """
     data = parser.parse(filepath)
     return models.Problem(special=special, **data)
 
 
 def load_solution(filepath):
+    """Load a solution at the given filepath.
+
+    :return: solution instance
+    :rtype: :class:`~Solution`
+    """
     data = parser.parse(filepath)
     return models.Solution(**data)
 

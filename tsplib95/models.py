@@ -12,8 +12,10 @@ class File:
     """Base file format type.
 
     Contains the common keyword values common among all formats. Note that all
-    information is optional. In that case the value will be ``None``. See the
-    official [TSPLIB] documentation for more details.
+    information is optional. In that case the value will be None. See the
+    official TSPLIB_ documentation for more details.
+
+    .. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
     """
 
     def __init__(self, **kwargs):
@@ -150,6 +152,8 @@ class Problem(File):
     def trace_tours(self, solution):
         """Calculate the total weights of the tours in the given solution.
 
+        :param solution: solution with tours to trace
+        :type solution: :class:`~Solution`
         :return: one or more tour weights
         :rtype: list
         """

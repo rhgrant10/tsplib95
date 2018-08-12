@@ -63,11 +63,11 @@ It also has a CLI program to print a tabular summary of one or more TSPLIB95 fil
 Credits
 -------
 
-See [TSPLIB]_ for original details, including file format specification, C++ code, and sample problems.
+See TSPLIB_ for original details, including file format specification, C++ code, and sample problems.
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
 
-.. [TSPLIB] https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
+.. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html

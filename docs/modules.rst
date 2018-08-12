@@ -1,13 +1,6 @@
 API Documentation
 =================
 
-Parser
-------
-
-.. automodule:: tsplib95.parser
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 Model classes
 -------------
@@ -38,5 +31,3 @@ Utilities
 
 .. automodule:: tsplib95.utils
     :members:
-    :undoc-members:
-    :show-inheritance:

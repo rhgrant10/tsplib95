@@ -32,7 +32,7 @@ Both have the base attributes, but let's focus on a problem first:
     16
 
 
-Problems can be specified in several ways according to the [TSPLIB]_ format. Here's how this particular problem is specified:
+Problems can be specified in several ways according to the TSPLIB_ format. Here's how this particular problem is specified:
 
 .. code-block:: python
 
@@ -113,3 +113,5 @@ And you can trace the tours found in a ``Solution``:
     [73]
 
 Note that it returns a list of tour distances, one for each tour defined in the solution.
+
+.. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
