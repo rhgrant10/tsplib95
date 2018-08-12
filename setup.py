@@ -11,7 +11,10 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', ]
+requirements = [
+    'Click>=6.0',
+    'networkx==2.1',
+]
 
 setup_requirements = ['pytest-runner', ]
 
@@ -21,19 +24,18 @@ setup(
     author="Robert Grant",
     author_email='rhgrant10@gmail.com',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
+        'Intended Audience :: Education',
+        'Intended Audience :: Science/Research',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3 :: Only',
+        'Operating System :: OS Independent',
     ],
-    description="TSPLIB 95  dworks with TSPLIB 95 files.",
+    description="TSPLIB95 works with TSPLIB95 files.",
     entry_points={
         'console_scripts': [
             'tsplib95=tsplib95.cli:cli',
@@ -51,5 +53,5 @@ setup(
     tests_require=test_requirements,
     url='https://github.com/rhgrant10/tsplib95',
     version='0.1.0',
-    zip_safe=False,
+    zip_safe=True,
 )
