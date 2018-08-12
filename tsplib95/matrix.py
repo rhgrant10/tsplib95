@@ -151,10 +151,30 @@ class LowerRow(LowerDiagRow):
         return i - 1, j
 
 
+class UpperCol(LowerRow):
+    pass
+
+
+class LowerCol(UpperRow):
+    pass
+
+
+class UpperDiagCol(LowerDiagRow):
+    pass
+
+
+class LowerDiagCol(UpperDiagRow):
+    pass
+
+
 TYPES = {
     'FULL_MATRIX': FullMatrix,
     'UPPER_DIAG_ROW': UpperDiagRow,
     'UPPER_ROW': UpperRow,
     'LOWER_DIAG_ROW': LowerDiagRow,
     'LOWER_ROW': LowerRow,
+    'UPPER_DIAG_COL': UpperDiagCol,
+    'UPPER_COL': UpperCol,
+    'LOWER_DIAG_COL': LowerDiagCol,
+    'LOWER_COL': LowerCol,
 }
