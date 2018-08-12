@@ -1,50 +1,73 @@
 # -*- coding: utf-8 -*-
-import collections
 import functools
 import math
 
-
-LatLng = collections.namedtuple('LatLng', 'lat lng')
-
-
-def nint(x):
-    return int(x + 0.5)
+from . import utils
 
 
-def _deltas(start, end):
-    return (e - s for e, s in zip(end, start))
+def euclidean(start, end, round=utils.nint):
+    """Return the Euclidean distance between start and end.
+
+    :param tuple start: *n*-dimensional coordinate
+    :param tuple end: *n*-dimensional coordinate
+    :param callable round: function to use to round the result
+    :return: rounded distance
+    """
+    if len(start) != len(end):
+        raise ValueError('dimension mismatch between start and end')
+
+    square_distance = sum(d * d for d in utils.deltas(start, end))
+    distance = math.sqrt(square_distance)
+
+    return round(distance)
 
 
-def _parse_degrees(coord):
-    degrees = nint(coord)
-    minutes = coord - degrees
-    return degrees + minutes * 5 / 3
+def manhattan(start, end, round=utils.nint):
+    """Return the Manhattan distance between start and end.
+
+    :param tuple start: *n*-dimensional coordinate
+    :param tuple end: *n*-dimensional coordinate
+    :param callable round: function to use to round the result
+    :return: rounded distance
+    """
+    if len(start) != len(end):
+        raise ValueError('dimension mismatch between start and end')
+
+    distance = sum(abs(d) for d in utils.deltas(start, end))
+
+    return round(distance)
 
 
-def to_radian_coord(coord):
-    x, y = coord
-    lat = math.radians(_parse_degrees(x))
-    lng = math.radians(_parse_degrees(y))
-    return LatLng(lat, lng)
+def maximum(start, end, round=utils.nint):
+    """Return the Maximum distance between start and end.
+
+    :param tuple start: *n*-dimensional coordinate
+    :param tuple end: *n*-dimensional coordinate
+    :param callable round: function to use to round the result
+    :return: rounded distance
+    """
+    if len(start) != len(end):
+        raise ValueError('dimension mismatch between start and end')
+
+    distance = max(abs(d) for d in utils.deltas(start, end))
+
+    return round(distance)
 
 
-def euclidean(start, end, round=nint):
-    square_distance = sum(d * d for d in _deltas(start, end))
-    return round(math.sqrt(square_distance))
+def geographical(start, end, round=utils.nint, diameter=6378.388):
+    """Return the geographical distance between start and end.
 
+    :param tuple start: *n*-dimensional coordinate
+    :param tuple end: *n*-dimensional coordinate
+    :param callable round: function to use to round the result
+    :param float diameter: the diameter of the Earth
+    :return: rounded distance
+    """
+    if len(start) != len(end):
+        raise ValueError('dimension mismatch between start and end')
 
-def manhattan(start, end, round=nint):
-    total_distance = sum(abs(d) for d in _deltas(start, end))
-    return round(total_distance)
-
-
-def maximum(start, end, round=nint):
-    return max(round(abs(d)) for d in _deltas(start, end))
-
-
-def geographical(start, end, round=nint, diameter=6378.388):
-    start = to_radian_coord(start)
-    end = to_radian_coord(end)
+    start = utils.RadianGeo(start)
+    end = utils.RadianGeo(end)
 
     q1 = math.cos(start.lng - end.lng)
     q2 = math.cos(start.lat - end.lat)
@@ -54,12 +77,24 @@ def geographical(start, end, round=nint, diameter=6378.388):
     return round(distance)
 
 
-def pseudo_euclidean(start, end, round=nint):
-    square_sum = sum(d * d for d in _deltas(start, end))
+def pseudo_euclidean(start, end, round=utils.nint):
+    """Return the pseudo-Euclidean distance between start and end.
+
+    :param tuple start: *n*-dimensional coordinate
+    :param tuple end: *n*-dimensional coordinate
+    :param callable round: function to use to round the result
+    :return: rounded distance
+    """
+    if len(start) != len(end):
+        raise ValueError('dimension mismatch between start and end')
+
+    square_sum = sum(d * d for d in utils.deltas(start, end))
     value = math.sqrt(square_sum / 10)
+
+    # with nint does this not equate to ceil? and what about other cases?
     distance = round(value)
     if distance < value:
-        value = distance + 1
+        distance += 1
     return distance
 
 
