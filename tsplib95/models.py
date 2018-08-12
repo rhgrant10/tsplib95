@@ -5,39 +5,52 @@ import networkx
 
 from . import matrix
 from . import distances
-
-
-def pairwise(indexes):
-    starts = list(indexes)
-    ends = list(indexes)
-    ends += [ends.pop(0)]
-    return zip(starts, ends)
+from . import utils
 
 
 class File:
+    """Base file format type.
+
+    Contains the common keyword values common among all formats. Note that all
+    information is optional. In that case the value will be ``None``. See the
+    official [TSPLIB] documentation for more details.
+    """
+
     def __init__(self, **kwargs):
         self.name = kwargs.get('NAME')
         self.comment = kwargs.get('COMMENT')
         self.type = kwargs.get('TYPE')
         self.dimension = kwargs.get('DIMENSION')
 
-    def __len__(self):
-        return self.dimension
-
-    def get_nodes(self):
-        raise NotImplementedError()
-
 
 class Solution(File):
+    """A TSPLIB solution file containing one or more tours to a problem.
+
+    The length of a solution is the number of tours it contains.
+    """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.tours = kwargs.get('TOUR_SECTION')
 
-    def get_nodes(self):
-        return list(self.tours[0])
+    def __len__(self):
+        return len(self.tours)
 
 
 class Problem(File):
+    """A TSPLIB problem file.
+
+    For problems that require a special distance function, you must set the
+    special function in one of two ways:
+
+    .. code-block:: python
+
+        >>> problem = Problem(special=func, ...)  # at creation time
+        >>> problem.special = func                # on existing problem
+
+    The length of a problem is the number of nodes it contains.
+    """
+
     def __init__(self, special=None, **kwargs):
         super().__init__(**kwargs)
         self.capacity = kwargs.get('CAPACITY')
@@ -61,31 +74,71 @@ class Problem(File):
         self.wfunc = None
         self.special = special
 
+    def __len__(self):
+        return self.dimension
+
     @property
     def special(self):
+        """Return the special distance function if set."""
         return self._special
 
     @special.setter
     def special(self, func):
+        """Set the special distance function.
+
+        Special/custom distance functions must accept two coordinates of
+        appropriate dimension and return the distance between them.
+
+        Note that this has no effect if the problem defines weights explicitly.
+
+        :param callable func: custom distance function
+        """
         self._special = func
         self.wfunc = self._create_wfunc(special=func)
 
     def is_explicit(self):
+        """Return True if the problem specifies explicit edge weights.
+
+        :rtype: bool
+        """
         return self.edge_weight_type == 'EXPLICIT'
 
     def is_full_matrix(self):
+        """Return True if the problem is specified as a full matrix.
+
+        :rtype: bool
+        """
         return self.edge_weight_format == 'FULL_MATRIX'
 
     def is_special(self):
+        """Return True if the problem requires a special distance function.
+
+        :rtype: bool
+        """
         return self.edge_weight_type == 'SPECIAL'
 
     def is_complete(self):
+        """Return True if the problem specifies a complete graph.
+
+        :rtype: bool
+        """
         return 'EDGE_DATA_FORMAT' not in self
 
     def is_symmetric(self):
+        """Return True if the problem is not asymmetrical.
+
+        Note that even if this method returns False there is no guarantee that
+        there are any two nodes with an asymmetrical distance between them.
+
+        :rtype: bool
+        """
         return not self.is_full_matrix() and not self.is_special()
 
     def is_depictable(self):
+        """Return True if the problem is designed to be depicted.
+
+        :rtype: bool
+        """
         if 'DISPLAY_DATA_SECTION' in self:
             return True
 
@@ -95,13 +148,19 @@ class Problem(File):
         return 'NODE_COORD_SECTION' in self
 
     def trace_tours(self, solution):
+        """Calculate the total weights of the tours in the given solution.
+
+        :return: one or more tour weights
+        :rtype: list
+        """
         solutions = []
         for tour in solution.tours:
-            weight = sum(self.wfunc(i, j) for i, j in pairwise(tour))
+            weight = sum(self.wfunc(i, j) for i, j in utils.pairwise(tour))
             solutions.append(weight)
         return solutions
 
     def _create_wfunc(self, special=None):
+        # smooth out the differences between explicit and calculated problems
         if self.is_explicit():
             matrix = self._create_explicit_matrix()
             return lambda i, j: matrix[i, j]
@@ -109,6 +168,7 @@ class Problem(File):
             return self._create_distance_function(special=special)
 
     def _create_distance_function(self, special=None):
+        # wrap a distance function so that it takes node indexes, not coords
         if special is None:
             if self.is_special():
                 raise Exception('missing needed special weight function')
@@ -122,11 +182,17 @@ class Problem(File):
         return adapter
 
     def _create_explicit_matrix(self):
+        # instantiate the right matrix class for the problem
         m = min(self.get_nodes())
         Matrix = matrix.TYPES[self.edge_weight_format]
         return Matrix(self.edge_weights, self.dimension, min_index=m)
 
     def get_nodes(self):
+        """Return an iterator over the nodes.
+
+        :return: nodes
+        :rtype: iter
+        """
         if self.node_coords:
             return iter(self.node_coords)
         elif self.display_data:
@@ -135,6 +201,11 @@ class Problem(File):
             return iter(range(self.dimension))
 
     def get_edges(self):
+        """Return an iterator over the edges.
+
+        :return: edges
+        :rtype: iter
+        """
         if self.edge_data_format == 'EDGE_LIST':
             yield from self.edge_data
         elif self.edge_data_format == 'ADJ_LIST':
@@ -144,6 +215,11 @@ class Problem(File):
             yield from itertools.product(self.get_nodes(), self.get_nodes())
 
     def get_display(self, i):
+        """Return the display data for node at index *i*, if available.
+
+        :param int i: node index
+        :return: display data for node i
+        """
         if self.is_depictable():
             try:
                 return self.display_data[i]
@@ -153,6 +229,12 @@ class Problem(File):
             return None
 
     def get_graph(self):
+        """Return the corresponding networkx.Graph instance.
+
+        If the graph is not symmetric then a DiGraph is returned.
+
+        :return: graph
+        """
         G = networkx.Graph() if self.is_symmetric() else networkx.DiGraph()
         G.graph['name'] = self.name
         G.graph['comment'] = self.comment

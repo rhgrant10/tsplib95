@@ -52,3 +52,10 @@ def integer_sum(n, m=None):
     if m:
         s -= _int_sum(m)
     return s
+
+
+def pairwise(indexes):
+    starts = list(indexes)
+    ends = list(indexes)
+    ends += [ends.pop(0)]
+    return zip(starts, ends)
