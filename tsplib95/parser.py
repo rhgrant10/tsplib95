@@ -137,66 +137,6 @@ def process_key(data, stream):
     }[key]
 
 
-# def split_kv(line):
-#     try:
-#         k, v = line.split(':')
-#     except ValueError:
-#         k, v = line, ''
-#     return k.strip(), v.strip()
-
-
-# def parse(filename):
-#     lines = read_input_file(filename)
-#     stream = Stream(lines)
-#     data = {}
-
-#     transition = start
-#     while transition:
-#         transition = transition(data, stream)
-
-#     return data
-
-
-# def start(data, stream):
-#     next(stream)
-#     return process_line
-
-
-# def finish(data, stream):
-#     return None
-
-
-# def process_line(data, stream):
-#     if stream.line is None or stream.line == 'EOF':
-#         return finish
-
-#     key, value = split_kv(stream.line)
-#     if value:
-#         return process_key_value(data, stream, key, value)
-#     else:
-#         return process_key(data, stream, key)
-
-
-# def process_key_value(data, stream, key, value):
-#     data[key] = VALUE_TYPES[key](value)
-#     next(stream)
-#     return process_line
-
-
-# def process_key(data, stream, key):
-#     next(stream)
-#     return {
-#         'NODE_COORD_SECTION': parse_node_coords,
-#         'DEPOT_SECTION': parse_depots,
-#         'DEMAND_SECTION': parse_demands,
-#         'EDGE_DATA_SECTION': parse_edge_data,
-#         'FIXED_EDGES_SECTION': parse_fixed_edges,
-#         'DISPLAY_DATA_SECTION': parse_display_data,
-#         'TOUR_SECTION': parse_tours,
-#         'EDGE_WEIGHT_SECTION': parse_edge_weights,
-#     }[key]
-
-
 def parse_node_coords(data, stream):
     section = data['NODE_COORD_SECTION'] = collections.OrderedDict()
 

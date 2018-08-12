@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# assume zero indexing
 
 
 def _int_sum(n, memo={}):
@@ -37,7 +36,7 @@ class Matrix:
         return 0 <= i < self.size and 0 <= j < self.size
 
     def get_index(self, i, j):
-        pass
+        raise NotImplementedError()
 
 
 class FullMatrix(Matrix):
@@ -63,14 +62,6 @@ class UpperDiagRow(HalfMatrix):
 
     def get_index(self, i, j):
         n = self.size - int(not self.has_diagonal)
-        # index = 0
-        # while i > 0:
-        #     index += n
-        #     i -= 1
-        #     j -= 1
-        #     n -= 1
-
-        # return index + j
         return integer_sum(n, n - i) + (j - i)
 
 
@@ -81,13 +72,6 @@ class LowerDiagRow(HalfMatrix):
         return (j, i) if i < j else (i, j)
 
     def get_index(self, i, j):
-        # s = 1
-        # index = 0
-        # while i > 0:
-        #     index += s
-        #     i -= 1
-        #     s += 1
-        # return index + j
         return integer_sum(i) + j
 
 
