@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """Console script for tsplib95."""
-import collections
-
 import click
 
 from . import parser
@@ -11,13 +9,16 @@ from . import parser
 def get_problems(filepaths):
     m = max(len(path) for path in filepaths)
 
-    problems = collections.defaultdict(dict)
+    problems = {}
     for filepath in filepaths:
         s = m - len(filepath)
         click.echo(f'\rLoading {filepath}{"…":<{s}}', nl=False)
         problem = parser.parse(filepath)
-        problems[problem['TYPE']][filepath] = problem
+        problems[filepath] = problem
+
+    # looks gnarly but really it's just erasing the last output line
     click.echo(f'\r{" ":<{m + 9}}')
+
     return problems
 
 
@@ -28,9 +29,8 @@ def print_information(problems):
 
 
 def get_tabular_data(problems):
-    for type_, instances in problems.items():
-        for filepath, problem in instances.items():
-            yield type_, problem['DIMENSION'], filepath
+    for filepath, problem in problems.items():
+        yield problem['TYPE'], problem['DIMENSION'], filepath
 
 
 @click.group()
