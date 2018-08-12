@@ -36,12 +36,14 @@ Usage
 
 Loading problems and solutions is easy.
 
-.. code-block::python
+.. code-block:: python
 
     >>> import tsplib95
     >>> problem = tsplib95.load_problem('ulysses16.tsp')
 
 Both have the base attributes, but let's focus on a problem first:
+
+.. code-block:: python
 
     >>> problem.name  # not specified
     >>> problem.comment
@@ -54,15 +56,19 @@ Both have the base attributes, but let's focus on a problem first:
 
 Problems can be specified in several ways according to the TSPLIB_ format. Here's how this particular problem is specified:
 
+.. code-block:: python
+
     >>> problem.display_data_type
     'COORD_DISPLAY'
     >>> problem.edge_data_format    # not specified
     >>> problem.edge_weight_format  # not specified
     >>> problem.edge_weight_type
-     'GEO'
+    'GEO'
     >>> problem.node_coord_type     # not specified
 
 Regardless of how the problem is specified, nodes and edges are accessible in the same way. Nodes and edges are returned as generators since there could be a significant number of them:
+
+.. code-block:: python
 
     >>> list(problem.get_nodes())
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
@@ -71,6 +77,8 @@ Regardless of how the problem is specified, nodes and edges are accessible in th
 
 We can find the weight of the edge between nodes 1 and, say, 11, using ``wfunc``:
 
+.. code-block:: python
+
     >>> problem.wfunc
     <function tsplib95.models.Problem._create_distance_function.<locals>.adapter>
     >>> problem.wfunc(1, 11)
@@ -78,7 +86,7 @@ We can find the weight of the edge between nodes 1 and, say, 11, using ``wfunc``
 
 If the distance function for the problem is "SPECIAL" you must provide a custom distance function. The function must accept two node coordinates and return the distance between them. You can provide this function at load time:
 
-.. code-block::python
+.. code-block:: python
 
     >>> import random
     >>> def random_distance(a, b):
@@ -88,7 +96,7 @@ If the distance function for the problem is "SPECIAL" you must provide a custom 
 
  You can also set it on an existing ``Problem`` instance:
 
-.. code-block::python
+.. code-block:: python
 
     >>> problem.special = random_distance
 
@@ -96,7 +104,7 @@ Note that setting the special function on a problem that has explicit edge weigh
 
 You can get a ``networkx.Graph`` instance from the problem:
 
-.. code-block::python
+.. code-block:: python
 
     >>> G = problem.get_graph()
     >>> G.nodes
@@ -104,7 +112,7 @@ You can get a ``networkx.Graph`` instance from the problem:
 
 And you can trace the tours found in a ``Solution``:
 
-.. code-block::python
+.. code-block:: python
 
     >>> solution = tsplib95.load_solution('ulysses16.opt.tour')
     >>> problem.trace_tours(solution)
