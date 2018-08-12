@@ -9,9 +9,9 @@ TSPLIB 95
 .. image:: https://img.shields.io/travis/rhgrant10/tsplib95.svg
         :target: https://travis-ci.org/rhgrant10/tsplib95
 
-.. .. image:: https://readthedocs.org/projects/tsplib95/badge/?version=latest
-..         :target: https://tsplib95.readthedocs.io/en/latest/?badge=latest
-..         :alt: Documentation Status
+.. image:: https://readthedocs.org/projects/tsplib95/badge/?version=latest
+        :target: https://tsplib95.readthedocs.io/en/latest/?badge=latest
+        :alt: Documentation Status
 
 
 TSPLIB 95 is a library for working with TSPLIB 95 files.
@@ -24,11 +24,92 @@ For now, documentation is light and there are some things missing.
 Features
 --------
 
-* read TSPLIB95 file format into a dictionary
+* read TSPLIB95 files
 * supports all explicit edge weight formats
 * supports all distance functions (except x-ray crystallography for now)
 * convert problems into ``networkx.Graph`` instances
 * CLI program to print a tabular summary of one or more TSPLIB95 files
+
+
+Usage
+-----
+
+Loading problems and solutions is easy.
+
+.. code-block::python
+
+    >>> import tsplib95
+    >>> problem = tsplib95.load_problem('ulysses16.tsp')
+
+Both have the base attributes, but let's focus on a problem first:
+
+    >>> problem.name  # not specified
+    >>> problem.comment
+    'Odyssey of Ulysses (Groetschel/Padberg)'
+    >>> problem.type
+    'TSP'
+    >>> problem.dimension
+    16
+
+
+Problems can be specified in several ways according to the TSPLIB_ format. Here's how this particular problem is specified:
+
+    >>> problem.display_data_type
+    'COORD_DISPLAY'
+    >>> problem.edge_data_format    # not specified
+    >>> problem.edge_weight_format  # not specified
+    >>> problem.edge_weight_type
+     'GEO'
+    >>> problem.node_coord_type     # not specified
+
+Regardless of how the problem is specified, nodes and edges are accessible in the same way. Nodes and edges are returned as generators since there could be a significant number of them:
+
+    >>> list(problem.get_nodes())
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    >>> list(problem.get_edges())[:5]
+    [(1, 1), (1, 2), (1, 3), (1, 4), (1, 5)]
+
+We can find the weight of the edge between nodes 1 and, say, 11, using ``wfunc``:
+
+    >>> problem.wfunc
+    <function tsplib95.models.Problem._create_distance_function.<locals>.adapter>
+    >>> problem.wfunc(1, 11)
+    26
+
+If the distance function for the problem is "SPECIAL" you must provide a custom distance function. The function must accept two node coordinates and return the distance between them. You can provide this function at load time:
+
+.. code-block::python
+
+    >>> import random
+    >>> def random_distance(a, b):
+    ...     return random.randint(10, 1000)
+    ...
+    >>> problem = tsplib95.parse('example.tsp', special=random_distance)
+
+ You can also set it on an existing ``Problem`` instance:
+
+.. code-block::python
+
+    >>> problem.special = random_distance
+
+Note that setting the special function on a problem that has explicit edge weights has no effect.
+
+You can get a ``networkx.Graph`` instance from the problem:
+
+.. code-block::python
+
+    >>> G = problem.get_graph()
+    >>> G.nodes
+    NodeView((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
+
+And you can trace the tours found in a ``Solution``:
+
+.. code-block::python
+
+    >>> solution = tsplib95.load_solution('ulysses16.opt.tour')
+    >>> problem.trace_tours(solution)
+    [73]
+
 
 Credits
 -------

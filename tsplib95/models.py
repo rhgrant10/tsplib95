@@ -56,9 +56,19 @@ class Problem(File):
         self.edge_weights = kwargs.get('EDGE_WEIGHT_SECTION')
         self.display_data = kwargs.get('DISPLAY_DATA_SECTION')
         self.edge_data = kwargs.get('EDGE_DATA_SECTION')
-        self.fixed_edges = kwargs.get('FIXED_EDGES_SECTION')
+        self.fixed_edges = kwargs.get('FIXED_EDGES_SECTION', set())
 
-        self.wfunc = self._create_wfunc(special=special)
+        self.wfunc = None
+        self.special = special
+
+    @property
+    def special(self):
+        return self._special
+
+    @special.setter
+    def special(self, func):
+        self._special = func
+        self.wfunc = self._create_wfunc(special=func)
 
     def is_explicit(self):
         return self.edge_weight_type == 'EXPLICIT'
@@ -87,7 +97,7 @@ class Problem(File):
     def trace_tours(self, solution):
         solutions = []
         for tour in solution.tours:
-            weight = sum(self.get_weight(i, j) for i, j in pairwise(tour))
+            weight = sum(self.wfunc(i, j) for i, j in pairwise(tour))
             solutions.append(weight)
         return solutions
 
@@ -117,12 +127,12 @@ class Problem(File):
         return Matrix(self.edge_weights, self.dimension, min_index=m)
 
     def get_nodes(self):
-        if 'NODE_COORD_SECTION' in self:
-            return list(self.node_coords)
-        elif 'DISPLAY_DATA_SECTION' in self:
-            return list(self.display_data)
+        if self.node_coords:
+            return iter(self.node_coords)
+        elif self.display_data:
+            return iter(self.display_data)
         else:
-            return list(range(self.dimension))
+            return iter(range(self.dimension))
 
     def get_edges(self):
         if self.edge_data_format == 'EDGE_LIST':
@@ -131,8 +141,7 @@ class Problem(File):
             for i, adj in self.edge_data.items():
                 yield from ((i, j) for j in adj)
         else:
-            indexes = self.get_nodes()
-            yield from itertools.product(iter(indexes), iter(indexes))
+            yield from itertools.product(self.get_nodes(), self.get_nodes())
 
     def get_display(self, i):
         if self.is_depictable():
