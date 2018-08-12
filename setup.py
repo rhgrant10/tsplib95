@@ -36,7 +36,7 @@ setup(
     description="TSPLIB 95  dworks with TSPLIB 95 files.",
     entry_points={
         'console_scripts': [
-            'tsplib95=tsplib95.cli:main',
+            'tsplib95=tsplib95.cli:cli',
         ],
     },
     install_requires=requirements,
