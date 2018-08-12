@@ -30,7 +30,7 @@ Features
 
 - read and use TSPLIB95 files like a boss
 - easily convert problems into ``networkx.Graph`` instances
-- supports and implements the following ``EDGE_WEIGHT_TYPE``s
+- supports and implements the following ``EDGE_WEIGHT_TYPE`` s
 
   - ``EXPLICIT``
   - ``EUC_2D``
@@ -43,7 +43,7 @@ Features
   - ``GEO``
   - ``ATT``
 
-- supports the following ``EDGE_WEIGHT_FORMAT``s
+- supports the following ``EDGE_WEIGHT_FORMAT`` s
 
   - ``FULL_MATRIX``
   - ``UPPER_ROW``
