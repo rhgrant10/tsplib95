@@ -43,7 +43,7 @@ def pairwise(indexes):
 
 
 def trace_tours(problem, solution, special=None):
-    wfunc = create_weight_function(problem) if special is not None else special
+    wfunc = create_weight_function(problem, special=special)
 
     solutions = []
     for tour in solution['TOUR_SECTION']:
@@ -54,6 +54,13 @@ def trace_tours(problem, solution, special=None):
 
 
 def create_weight_function(problem, special=None):
+    if is_explicit(problem):
+        matrix = create_explicit_matrix(problem)
+        return lambda i, j: matrix[i, j]
+    return create_distance_function(problem, special=special)
+
+
+def create_distance_function(problem, special=None):
     nodes = problem['NODE_COORD_SECTION']
 
     if special is None:
