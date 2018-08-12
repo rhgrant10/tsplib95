@@ -32,16 +32,16 @@ Features
 * easily convert problems into ``networkx.Graph`` instances
 * supports and implements the following ``EDGE_WEIGHT_TYPE``s
 
-    - ``EXPLICIT``
-    - ``EUC_2D``
-    - ``EUC_3D``
-    - ``MAX_2D``
-    - ``MAX_3D``
-    - ``MAN_2D``
-    - ``MAN_3D``
-    - ``CEIL_2D``
-    - ``GEO``
-    - ``ATT``
+   - ``EXPLICIT``
+   - ``EUC_2D``
+   - ``EUC_3D``
+   - ``MAX_2D``
+   - ``MAX_3D``
+   - ``MAN_2D``
+   - ``MAN_3D``
+   - ``CEIL_2D``
+   - ``GEO``
+   - ``ATT``
 
 * supports the following ``EDGE_WEIGHT_FORMAT``s
 
