@@ -26,6 +26,13 @@ def load_solution(filepath):
     return models.Solution(**data)
 
 
+def load_unknown(filepath):
+    data = parser.parse(filepath)
+    if data['TYPE'] == 'TOUR':
+        return models.Solution(**data)
+    return models.Problem(**data)
+
+
 def parse_degrees(coord):
     degrees = nint(coord)
     minutes = coord - degrees

@@ -112,6 +112,9 @@ class Problem(File):
         """
         return self.edge_weight_format == 'FULL_MATRIX'
 
+    def is_weighted(self):
+        return bool(self.edge_weight_format)
+
     def is_special(self):
         """Return True if the problem requires a special distance function.
 
@@ -173,12 +176,14 @@ class Problem(File):
 
     def _create_distance_function(self, special=None):
         # wrap a distance function so that it takes node indexes, not coords
-        if special is None:
-            if self.is_special():
+        if self.is_special():
+            if special is None:
                 raise Exception('missing needed special weight function')
+            wfunc = special
+        elif self.is_weighted():
             wfunc = distances.TYPES[self.edge_weight_type]
         else:
-            wfunc = special
+            return lambda i, j: 1
 
         def adapter(i, j):
             return wfunc(self.node_coords[i], self.node_coords[j])
