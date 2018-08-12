@@ -16,7 +16,7 @@ TSPLIB 95
 
 
 
-TSPLIB 95  dworks with TSPLIB 95 files.
+TSPLIB 95 works with TSPLIB 95 files. See TSPLIB_ for original details, including file format specification, CPP code, and sample problems.
 
 
 * Free software: Apache Software License 2.0
@@ -26,7 +26,11 @@ TSPLIB 95  dworks with TSPLIB 95 files.
 Features
 --------
 
-* TODO
+* read TSPLIB95 file format into a dictionary
+* supports all explicit edge weight formats
+* supports all distance functions (except x-ray crystallography for now)
+* convert problems into ``networkx.Graph`` instances
+* CLI program to print a tabular summary of one or more TSPLIB95 files
 
 Credits
 -------
@@ -35,3 +39,4 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+.. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
