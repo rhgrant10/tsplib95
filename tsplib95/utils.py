@@ -38,3 +38,17 @@ class RadianGeo:
     @staticmethod
     def parse_component(component):
         return math.radians(parse_degrees(component))
+
+
+def _int_sum(n, memo={}):
+    if n not in memo:
+        s = n * (n + 1) // 2
+        memo[n] = s
+    return memo[n]
+
+
+def integer_sum(n, m=None):
+    s = _int_sum(n)
+    if m:
+        s -= _int_sum(m)
+    return s
