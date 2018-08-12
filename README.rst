@@ -39,6 +39,7 @@ Loading problems and solutions is easy.
 .. code-block:: python
 
     >>> import tsplib95
+    >>>
     >>> problem = tsplib95.load_problem('ulysses16.tsp')
 
 Both have the base attributes, but let's focus on a problem first:
@@ -84,21 +85,37 @@ We can find the weight of the edge between nodes 1 and, say, 11, using ``wfunc``
     >>> problem.wfunc(1, 11)
     26
 
-If the distance function for the problem is "SPECIAL" you must provide a custom distance function. The function must accept two node coordinates and return the distance between them. You can provide this function at load time:
+If the distance function for the problem is "SPECIAL" you must provide a custom distance function. The function must accept two node coordinates and return the distance between them. Let's create one:
 
 .. code-block:: python
 
     >>> import random
-    >>> def random_distance(a, b):
-    ...     return random.randint(10, 1000)
+    >>> import math
+    >>>
+    >>> def euclidean_2d_jitter(a, b):
+    ...     x1, y1 = a
+    ...     x2, y2 = b
+    ...     dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    ...     return dist * random.random() * 2
     ...
-    >>> problem = tsplib95.parse('example.tsp', special=random_distance)
 
- You can also set it on an existing ``Problem`` instance:
+Of course, you may want to leverage the existing distance functions:
 
 .. code-block:: python
 
-    >>> problem.special = random_distance
+    >>> from tsplib95 import distances
+    >>>
+    >>> def euclidean_jitter(a, b):
+    ...    dist = distances.euclidean(a, b)  # works for n-dimensions
+    ...    return dist * random.random() * 2
+    ...
+
+You can either provide that function at load time or you can also set it on an existing ``Problem`` instance:
+
+.. code-block:: python
+
+    >>> problem = tsplib95.load_problem('example.tsp', special=euclidean_2d_jitter)
+    >>> problem.special = euclidean_jitter
 
 Note that setting the special function on a problem that has explicit edge weights has no effect.
 
