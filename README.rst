@@ -28,34 +28,34 @@ For now...
 Features
 --------
 
-* read and use TSPLIB95 files like a boss
-* easily convert problems into ``networkx.Graph`` instances
-* supports and implements the following ``EDGE_WEIGHT_TYPE``s
+- read and use TSPLIB95 files like a boss
+- easily convert problems into ``networkx.Graph`` instances
+- supports and implements the following ``EDGE_WEIGHT_TYPE``s
 
-    * ``EXPLICIT``
-    * ``EUC_2D``
-    * ``EUC_3D``
-    * ``MAX_2D``
-    * ``MAX_3D``
-    * ``MAN_2D``
-    * ``MAN_3D``
-    * ``CEIL_2D``
-    * ``GEO``
-    * ``ATT``
+    - ``EXPLICIT``
+    - ``EUC_2D``
+    - ``EUC_3D``
+    - ``MAX_2D``
+    - ``MAX_3D``
+    - ``MAN_2D``
+    - ``MAN_3D``
+    - ``CEIL_2D``
+    - ``GEO``
+    - ``ATT``
 
-* supports the following ``EDGE_WEIGHT_FORMAT``s
+- supports the following ``EDGE_WEIGHT_FORMAT``s
 
-    * ``FULL_MATRIX``
-    * ``UPPER_ROW``
-    * ``LOWER_ROW``
-    * ``UPPER_DIAG_ROW``
-    * ``LOWER_DIAG_ROW``
-    * ``UPPER_COL``
-    * ``LOWER_COL``
-    * ``UPPER_DIAG_COL``
-    * ``LOWER_DIAG_COL``
+    - ``FULL_MATRIX``
+    - ``UPPER_ROW``
+    - ``LOWER_ROW``
+    - ``UPPER_DIAG_ROW``
+    - ``LOWER_DIAG_ROW``
+    - ``UPPER_COL``
+    - ``LOWER_COL``
+    - ``UPPER_DIAG_COL``
+    - ``LOWER_DIAG_COL``
 
-* supports ``SPECIAL`` ``FUNCTION`` edge weights too
+- supports ``SPECIAL`` ``FUNCTION`` edge weights too
 
 It also has a CLI program to print a tabular summary of one or more TSPLIB95 files. No idea why anyone would want that, but there you have it.
 
