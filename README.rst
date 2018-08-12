@@ -16,7 +16,7 @@ TSPLIB 95
 
 
 
-TSPLIB 95 works with TSPLIB 95 files. See TSPLIB_ for original details, including file format specification, CPP code, and sample problems.
+TSPLIB 95 works with TSPLIB 95 files. See TSPLIB_ for original details, including file format specification, C++ code, and sample problems.
 
 
 * Free software: Apache Software License 2.0
