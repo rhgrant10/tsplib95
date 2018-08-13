@@ -43,6 +43,10 @@ def nint(x):
     return int(x + 0.5)
 
 
+def icost(x):
+    return int(100 * x + 0.5)
+
+
 def deltas(start, end):
     return (e - s for e, s in zip(end, start))
 

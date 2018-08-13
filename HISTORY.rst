@@ -2,6 +2,12 @@
 History
 =======
 
+0.3.0 (2018-08-12)
+------------------
+
+* Added XRAY1 and XRAY2 implementations
+* Simplified some of the matrix code
+
 0.2.0 (2018-08-12)
 ------------------
 

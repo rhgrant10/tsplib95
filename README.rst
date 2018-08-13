@@ -21,9 +21,9 @@ TSPLIB 95 is a library for working with TSPLIB 95 files.
 
 For now...
 
-* documentation is light
+* documentation is not complete
 * only 3.6 is supported (I am willing to remove f-strings if there is support; I might also spontaneously decide to do that)
-* there are some things missing (looking at you, crystallography distance functions)
+* there are some things missing (being able to write out a TSPLIB file chief among them)
 
 Features
 --------
@@ -42,6 +42,8 @@ Features
   - ``CEIL_2D``
   - ``GEO``
   - ``ATT``
+  - ``XRAY1``
+  - ``XRAY2``
 
 - supports the following ``EDGE_WEIGHT_FORMAT`` s
 
