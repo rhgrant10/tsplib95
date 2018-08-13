@@ -4,7 +4,7 @@
 
 __author__ = """Robert Grant"""
 __email__ = 'rhgrant10@gmail.com'
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 
 from . import distances  # noqa: F401
