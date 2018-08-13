@@ -97,7 +97,10 @@ class UpperDiagRow(HalfMatrix):
     has_diagonal = True
 
     def _fix_indices(self, i, j):
-        return (j, i) if i > j else (i, j)
+        i, j = (j, i) if i > j else (i, j)
+        if not self.has_diagonal:
+            j -= 1
+        return i, j
 
     def get_index(self, i, j):
         n = self.size - int(not self.has_diagonal)
@@ -115,7 +118,10 @@ class LowerDiagRow(HalfMatrix):
     has_diagonal = True
 
     def _fix_indices(self, i, j):
-        return (j, i) if i < j else (i, j)
+        i, j = (j, i) if i < j else (i, j)
+        if not self.has_diagonal:
+            i -= 1
+        return i, j
 
     def get_index(self, i, j):
         return utils.integer_sum(i) + j
@@ -131,10 +137,6 @@ class UpperRow(UpperDiagRow):
 
     has_diagonal = False
 
-    def _fix_indices(self, i, j):
-        i, j = super()._fix_indices(i, j)
-        return i, j - 1
-
 
 class LowerRow(LowerDiagRow):
     """Lower-triangular matrix that does not include the diagonal.
@@ -145,10 +147,6 @@ class LowerRow(LowerDiagRow):
     """
 
     has_diagonal = False
-
-    def _fix_indices(self, i, j):
-        i, j = super()._fix_indices(i, j)
-        return i - 1, j
 
 
 class UpperCol(LowerRow):
