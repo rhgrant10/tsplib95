@@ -8,6 +8,7 @@ from . import models
 def load_problem(filepath, special=None):
     """Load a problem at the given filepath.
 
+    :param str filepath: path to a TSPLIB problem file
     :param callable special: special/custom distance function
     :return: problem instance
     :rtype: :class:`~Problem`
@@ -19,6 +20,7 @@ def load_problem(filepath, special=None):
 def load_solution(filepath):
     """Load a solution at the given filepath.
 
+    :param str filepath: path to a TSPLIB solution file
     :return: solution instance
     :rtype: :class:`~Solution`
     """
@@ -27,6 +29,11 @@ def load_solution(filepath):
 
 
 def load_unknown(filepath):
+    """Load a TSPLIB file.
+
+    :param str filepath: path to a TSPLIB problem file
+    :return: either a problem or solution instance
+    """
     data = parser.parse(filepath)
     if data['TYPE'] == 'TOUR':
         return models.Solution(**data)

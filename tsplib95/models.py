@@ -11,9 +11,10 @@ from . import utils
 class File:
     """Base file format type.
 
-    Contains the common keyword values common among all formats. Note that all
-    information is optional. In that case the value will be None. See the
-    official TSPLIB_ documentation for more details.
+    This class isn't meant to be used directly. It contains the common keyword
+    values common among all formats. Note that all information is optional. In
+    that case the value will be None. See the official TSPLIB_ documentation
+    for more details.
 
     .. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
     """
@@ -50,6 +51,18 @@ class Problem(File):
         >>> problem = Problem(special=func, ...)  # at creation time
         >>> problem.special = func                # on existing problem
 
+    Special distance functions are ignored for explicit problems but are
+    required for some.
+
+    Regardless of problem type or specification, the weight of the edge between
+    two nodes given by index can always be found using ``wfunc``. For example,
+    to get the weight of the edge between nodes 13 and 6:
+
+    .. code-block:: python
+
+        >>> problem.wfunc(13, 6)
+        87
+
     The length of a problem is the number of nodes it contains.
     """
 
@@ -81,7 +94,7 @@ class Problem(File):
 
     @property
     def special(self):
-        """Return the special distance function if set."""
+        """Special distance function"""
         return self._special
 
     @special.setter
@@ -113,6 +126,10 @@ class Problem(File):
         return self.edge_weight_format == 'FULL_MATRIX'
 
     def is_weighted(self):
+        """Return True if the problem has weighted edges.
+
+        :rtype: bool
+        """
         return bool(self.edge_weight_format)
 
     def is_special(self):
@@ -240,7 +257,10 @@ class Problem(File):
     def get_graph(self):
         """Return the corresponding networkx.Graph instance.
 
-        If the graph is not symmetric then a DiGraph is returned.
+        If the graph is not symmetric then a DiGraph is returned. If present,
+        the coordinates of each node are set to the ``coord`` key, and each
+        edge has an ``is_fixed`` key that is True if the edge is in the list
+        of fixed edges.
 
         :return: graph
         """
