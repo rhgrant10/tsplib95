@@ -130,7 +130,7 @@ class Problem(File):
 
         :rtype: bool
         """
-        return bool(self.edge_weight_format)
+        return bool(self.edge_weight_format or self.edge_weight_type)
 
     def is_special(self):
         """Return True if the problem requires a special distance function.
