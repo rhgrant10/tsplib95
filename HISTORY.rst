@@ -2,6 +2,12 @@
 History
 =======
 
+0.3.1 (2018-10-03)
+------------------
+
+* Fix bug in ``Problem.is_weighted`` that caused problems with defined nodes
+  coords to use the unit distance function
+
 0.3.0 (2018-08-12)
 ------------------
 
