@@ -2,6 +2,16 @@
 History
 =======
 
+0.3.2 (2018-10-07)
+------------------
+
+* Fix bug in ``Problem.is_complete`` that produced a ``TypeError`` when run
+* Fix bug in ``Problem.is_depictable`` that produced a ``TypeError`` when run
+* Fix bug in ``Problem.get_display`` that produced an ``AttributeError`` when
+  run
+* Added some unit tests for the ``Problem`` class
+* Added some unit tests for the ``parser`` module
+
 0.3.1 (2018-10-03)
 ------------------
 
