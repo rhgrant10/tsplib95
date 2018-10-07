@@ -144,7 +144,7 @@ class Problem(File):
 
         :rtype: bool
         """
-        return 'EDGE_DATA_FORMAT' not in self
+        return not bool(self.edge_data_format)
 
     def is_symmetric(self):
         """Return True if the problem is not asymmetrical.
@@ -161,13 +161,13 @@ class Problem(File):
 
         :rtype: bool
         """
-        if 'DISPLAY_DATA_SECTION' in self:
+        if bool(self.display_data):
             return True
 
         if self.display_data_type == 'NO_DISPLAY':
             return False
 
-        return 'NODE_COORD_SECTION' in self
+        return bool(self.node_coords)
 
     def trace_tours(self, solution):
         """Calculate the total weights of the tours in the given solution.
@@ -250,7 +250,7 @@ class Problem(File):
             try:
                 return self.display_data[i]
             except TypeError:
-                return self.node_coord[i]
+                return self.node_coords[i]
         else:
             return None
 
