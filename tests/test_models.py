@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from unittest import mock
+
 import pytest
 
 from tsplib95 import models
@@ -86,3 +88,14 @@ def test_is_symmetric(problem, correct):
 ])
 def test_is_depictable(problem, correct):
     assert problem.is_depictable() is correct
+
+
+@pytest.mark.parametrize('problem,correct', [
+    (create_problem(is_depictable=mock.Mock(return_value=True), display_data=['foo']), 'foo'),
+    (create_problem(is_depictable=mock.Mock(return_value=True), node_coords=['bar']), 'bar'),
+    (create_problem(is_depictable=mock.Mock(return_value=True), display_data=['foo'], node_coords=['bar']), 'foo'),
+    (create_problem(is_depictable=mock.Mock(return_value=False), display_data=['foo'], node_coords=['bar']), None),
+    (create_problem(), None),
+])
+def test_get_display(problem, correct):
+    assert problem.get_display(0) is correct
