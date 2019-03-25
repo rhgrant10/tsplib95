@@ -80,7 +80,7 @@ def read_input_file(filename):
 
 
 def split_kv(line):
-    k, v = line.split(':')
+    k, v = line.split(':', 1)
     return k.strip(), v.strip()
 
 

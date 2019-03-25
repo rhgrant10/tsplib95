@@ -105,3 +105,9 @@ def test_parse_depot():
     parser.parse_depots(data, m_stream)
 
     assert data == {'DEPOT_SECTION': [1, 2, 3]}
+
+
+def test_split_kv():
+    k, v = parser.split_kv('foo: bar: baz')
+    assert k == 'foo'
+    assert v == 'bar: baz'
