@@ -13,7 +13,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'Click>=6.0',
-    'networkx==2.1',
+    'networkx~=2.1',
 ]
 
 setup_requirements = ['pytest-runner', ]
