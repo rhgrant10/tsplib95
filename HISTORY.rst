@@ -2,13 +2,29 @@
 History
 =======
 
+0.4.0 (2019-09-21)
+------------------
+
+* All expected parsing errors are now raised as ``ParsingError`` rather than the base ``Exception`` type.
+* Fix name of distance paramter to distances.geographical. Previously it was "diameter" but was used as a radius. It is now "radius".
+* Relax restriction on networkx version (now ``~=2.1``)
+* Add documentation for each problem field
+* Other minor documentation changes
+* Add offical 3.7 support
+* Add missing history entry for v0.3.3
+* Remove some dead code
+
+0.3.3 (2019-03-24)
+------------------
+
+* Fix parsing bug for key-value lines whose value itself contains colons
+
 0.3.2 (2018-10-07)
 ------------------
 
 * Fix bug in ``Problem.is_complete`` that produced a ``TypeError`` when run
 * Fix bug in ``Problem.is_depictable`` that produced a ``TypeError`` when run
-* Fix bug in ``Problem.get_display`` that produced an ``AttributeError`` when
-  run
+* Fix bug in ``Problem.get_display`` that produced an ``AttributeError`` when run
 * Added some unit tests for the ``Problem`` class
 * Added some unit tests for the ``parser`` module
 
