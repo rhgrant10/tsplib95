@@ -31,3 +31,9 @@ Utilities
 
 .. automodule:: tsplib95.utils
     :members:
+
+
+Exceptions
+----------
+
+.. autoclass:: tsplib95.parser.ParsingError

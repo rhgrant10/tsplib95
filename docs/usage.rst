@@ -11,15 +11,25 @@ Loading problems and solutions is easy:
 
 .. code-block:: python
 
-    >>> problem = tsplib95.load_problem('ulysses16.tsp')
+    >>> problem = tsplib95.load_problem('path/to/ulysses16.tsp')
     >>> problem
     <tsplib95.models.Problem at 0x105030d30>
-    >>> solution = tsplib95.load_solution('ulysses16.opt.tour')
+    >>> solution = tsplib95.load_solution('path/to/ulysses16.opt.tour')
     >>> solution
     <tsplib95.models.Solution at 0x104314d68>
 
+.. note::
 
-Both have the base attributes, but let's focus on a problem first:
+    **tsplib95** does not ship with any problem files itself. The problems
+    and solutions are standalone files. ``load_problem`` and ``load_solution``
+    take a filesystem path as an argument, not the name of a problem. Feel
+    free to download and use any of the original `TSPLIB problem files`_
+    commonly used and referenced by the community, find others, or write
+    your own. Any file that adheres to the `TSPLIB95 file format standards`_
+    should load without error.
+
+
+Both have the base attributes, but let's focus on a problem object first:
 
 .. code-block:: python
 
@@ -32,7 +42,8 @@ Both have the base attributes, but let's focus on a problem first:
     16
 
 
-Problems can be specified in several ways according to the TSPLIB_ format. Here's how this particular problem is specified:
+Problems can be specified in several ways according to the TSPLIB_ format.
+Here's how this particular problem is specified:
 
 .. code-block:: python
 
@@ -44,7 +55,10 @@ Problems can be specified in several ways according to the TSPLIB_ format. Here'
     'GEO'
     >>> problem.node_coord_type     # not specified
 
-Regardless of how the problem is specified, nodes and edges are accessible in the same way. Nodes and edges are returned as generators since there could be a significant number of them:
+
+Regardless of how the problem is specified, nodes and edges are accessible
+in the same way. Nodes and edges are returned as generators since there could
+be a significant number of them:
 
 .. code-block:: python
 
@@ -53,7 +67,8 @@ Regardless of how the problem is specified, nodes and edges are accessible in th
     >>> list(problem.get_edges())[:5]
     [(1, 1), (1, 2), (1, 3), (1, 4), (1, 5)]
 
-We can find the weight of the edge between nodes 1 and, say, 11, using ``wfunc``:
+We can find the weight of the edge between nodes 1 and, say, 11,
+using ``wfunc``:
 
 .. code-block:: python
 
@@ -62,7 +77,9 @@ We can find the weight of the edge between nodes 1 and, say, 11, using ``wfunc``
     >>> problem.wfunc(1, 11)
     26
 
-If the distance function for the problem is "SPECIAL" you must provide a custom distance function. The function must accept two node coordinates and return the distance between them. Let's create one:
+If the distance function for the problem is "SPECIAL" you must provide a
+custom distance function. The function must accept two node coordinates
+and return the distance between them. Let's create one:
 
 .. code-block:: python
 
@@ -87,14 +104,16 @@ Of course, you may want to leverage the existing distance functions:
     ...    return dist * random.random() * 2
     ...
 
-You can either provide that function at load time or you can also set it on an existing ``Problem`` instance:
+You can either provide that function at load time or you can also set it on
+an existing ``Problem`` instance:
 
 .. code-block:: python
 
     >>> problem = tsplib95.load_problem('example.tsp', special=euclidean_2d_jitter)
     >>> problem.special = euclidean_jitter
 
-Note that setting the special function on a problem that has explicit edge weights has no effect.
+Note that setting the special function on a problem that has explicit edge
+weights has no effect.
 
 You can get a ``networkx.Graph`` instance from the problem:
 
@@ -112,6 +131,9 @@ And you can trace the tours found in a ``Solution``:
     >>> problem.trace_tours(solution)
     [73]
 
-Note that it returns a list of tour distances, one for each tour defined in the solution.
+Note that it returns a list of tour distances, one for each tour defined in
+the solution.
 
 .. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
+.. _TSPLIB problem files: https://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp/
+.. _TSPLIB95 file format standards: https://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp95.pdf
