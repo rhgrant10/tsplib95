@@ -12,9 +12,14 @@ class File:
     """Base file format type.
 
     This class isn't meant to be used directly. It contains the common keyword
-    values common among all formats. Note that all information is optional. In
-    that case the value will be None. See the official TSPLIB_ documentation
+    values among all formats. Note that all information is optional. Missing
+    information values are set to None. See the official TSPLIB_ documentation
     for more details.
+
+     * ``name`` - NAME
+     * ``comment`` - COMMENT
+     * ``type`` - TYPE
+     * ``dimension`` - DIMENSION
 
     .. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
     """
@@ -29,6 +34,12 @@ class File:
 class Solution(File):
     """A TSPLIB solution file containing one or more tours to a problem.
 
+     * ``name`` - NAME
+     * ``comment`` - COMMENT
+     * ``type`` - TYPE
+     * ``dimension`` - DIMENSION
+     * ``tours`` - TOUR_SECTION
+
     The length of a solution is the number of tours it contains.
     """
 
@@ -42,6 +53,27 @@ class Solution(File):
 
 class Problem(File):
     """A TSPLIB problem file.
+
+    Provides a python-friendly way to access the fields of a TSPLIB probem.
+    The fields are mapped as follows:
+
+     * ``name`` - NAME
+     * ``comment`` - COMMENT
+     * ``type`` - TYPE
+     * ``dimension`` - DIMENSION
+     * ``capacity`` - CAPACITY
+     * ``edge_weight_type`` - EDGE_WEIGHT_TYPE
+     * ``edge_weight_format`` - EDGE_WEIGHT_FORMAT
+     * ``edge_data_format`` - EDGE_DATA_FORMAT
+     * ``node_coord_type`` - NODE_COORD_TYPE
+     * ``display_data_type`` - DISPLAY_DATA_TYPE
+     * ``depots`` - DEPOT_SECTION
+     * ``demands`` - DEMAND_SECTION
+     * ``node_coords`` - NODE_COORD_SECTION
+     * ``edge_weights`` - EDGE_WEIGHT_SECTION
+     * ``display_data`` - DISPLAY_DATA_SECTION
+     * ``edge_data`` - EDGE_DATA_SECTION
+     * ``fixed_edges`` - FIXED_EDGES_SECTION
 
     For problems that require a special distance function, you must set the
     special function in one of two ways:
