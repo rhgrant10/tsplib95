@@ -16,6 +16,14 @@ VALUE_TYPES = {
 }
 
 
+class ParsingError(Exception):
+    """Error raised when a given file cannot be parsed.
+
+    This indicates the file does not conform to the standard
+    TSPLIB95 file format.
+    """
+
+
 class Stream:
     def __init__(self, lines):
         self.lines = iter(lines)
@@ -47,7 +55,7 @@ def get_next_tour(sequence):
 
         tour.append(index)
 
-    raise Exception('all tours must end with -1')
+    raise ParsingError('all tours must end with -1')
 
 
 def read_integer_sequence(stream):
@@ -57,20 +65,6 @@ def read_integer_sequence(stream):
             next(stream)
         except (ValueError, AttributeError):
             break
-
-
-def partition(values, lengths):
-    edge_weights = []
-    for n in lengths:
-        if n > len(values):
-            raise Exception('too few values')
-        row, values = values[:n], values[n:]
-        edge_weights.append(row)
-
-    if values:
-        raise Exception('too many values')
-
-    return edge_weights
 
 
 def read_input_file(filename):
@@ -89,9 +83,13 @@ def parse(filename):
     stream = Stream(lines)
     data = {}
 
-    transition = start
-    while transition:
-        transition = transition(data, stream)
+    try:
+        transition = start
+        while transition:
+            transition = transition(data, stream)
+    except ParsingError as e:
+        e.args[0] += f' (line: {repr(stream.line)})'
+        raise
 
     return data
 
@@ -151,7 +149,7 @@ def parse_node_coords(data, stream):
             break
 
         if len(reals) not in (2, 3):
-            raise Exception('invalid node coord')
+            raise ParsingError('node coords must be 2d or 3d')
 
         coord = tuple(map(float, reals))
         section[index] = coord
@@ -165,12 +163,12 @@ def parse_depots(data, stream):
 
     while True:
         if stream.line is None:
-            raise Exception('depot section must end with -1')
+            raise ParsingError('depot section must end with -1')
 
         try:
             depot = int(stream.line)
         except ValueError:
-            raise Exception('invalid depot')
+            raise ParsingError('not a valid depot')
 
         if depot == -1:
             break
@@ -218,7 +216,7 @@ def parse_edge_list(data, stream):
 
     while True:
         if stream.line is None:
-            raise Exception('edge list must end with a -1')
+            raise ParsingError('edge lists must end with a -1')
 
         try:
             u, v = stream.line.split()
@@ -228,13 +226,13 @@ def parse_edge_list(data, stream):
         try:
             edge = int(u), int(v)
         except ValueError:
-            raise Exception('bad edge')
+            raise ParsingError('not a valid edge')
 
         section.append(edge)
         next(stream)
 
     if stream.line != '-1':
-        raise Exception('edge list must end with a -1')
+        raise ParsingError('edge lists must end with a -1')
 
     next(stream)
     return process_line
@@ -245,11 +243,11 @@ def parse_adj_list(data, stream):
 
     while True:
         if stream.line is None:
-            raise Exception('entire adjacency list must end with a -1')
+            raise ParsingError('entire adjacency list must end with a -1')
 
         *values, end = stream.line.split()
         if end != '-1':
-            raise Exception('adjacency list must end with a -1')
+            raise ParsingError('adjacency list must end with a -1')
         if not values:
             break
 
@@ -266,7 +264,7 @@ def parse_fixed_edges(data, stream):
 
     while True:
         if stream.line is None:
-            raise Exception('fixed edges must end with a -1')
+            raise ParsingError('fixed edges must end with a -1')
 
         try:
             u, v = stream.line.split()
@@ -276,13 +274,13 @@ def parse_fixed_edges(data, stream):
         try:
             edge = int(u), int(v)
         except ValueError:
-            raise Exception('bad fixed edge')
+            raise ParsingError('fixed edges must be two integer coordinate indicies')
 
         section.append(edge)
         next(stream)
 
     if stream.line != '-1':
-        raise Exception('fixed edges must end with a -1')
+        raise ParsingError('fixed edges must end with a -1')
 
     next(stream)
     return process_line
@@ -302,7 +300,7 @@ def parse_display_data(data, stream):
             break
 
         if len(reals) not in (2, 3):
-            raise Exception('invalid display data')
+            raise ParsingError('display data must be either 2d or 3d')
 
         coord = tuple(map(float, reals))
         section[index] = coord
