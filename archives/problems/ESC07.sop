@@ -1,0 +1,19 @@
+NAME: ESC07.sop
+TYPE: SOP
+COMMENT: Received by Norbert Ascheuer / Laureano Escudero
+DIMENSION: 9
+EDGE_WEIGHT_TYPE: EXPLICIT
+EDGE_WEIGHT_FORMAT: FULL_MATRIX 
+EDGE_WEIGHT_SECTION
+9
+    0    0    0    0    0    0    0    0 1000000
+   -1    0  100  200   75    0  300  100    0
+   -1  400    0  500  325  400  600    0    0
+   -1  700  800    0  550  700  900  800    0
+   -1   -1  250  225    0  275  525  250    0
+   -1   -1  100  200   -1    0   -1   -1    0
+   -1   -1 1100 1200 1075 1000    0 1100    0
+   -1   -1    0  500  325  400  600    0    0
+   -1   -1   -1   -1   -1   -1   -1   -1    0
+EOF
+
