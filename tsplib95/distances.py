@@ -54,13 +54,13 @@ def maximum(start, end, round=utils.nint):
     return round(distance)
 
 
-def geographical(start, end, round=utils.nint, diameter=6378.388):
+def geographical(start, end, round=utils.nint, radius=6378.388):
     """Return the geographical distance between start and end.
 
     :param tuple start: *n*-dimensional coordinate
     :param tuple end: *n*-dimensional coordinate
     :param callable round: function to use to round the result
-    :param float diameter: the diameter of the Earth
+    :param float radius: the radius of the Earth
     :return: rounded distance
     """
     if len(start) != len(end):
@@ -72,7 +72,7 @@ def geographical(start, end, round=utils.nint, diameter=6378.388):
     q1 = math.cos(start.lng - end.lng)
     q2 = math.cos(start.lat - end.lat)
     q3 = math.cos(start.lat + end.lat)
-    distance = diameter * math.acos(0.5 * ((1 + q1) * q2 - (1 - q1) * q3)) + 1
+    distance = radius * math.acos(0.5 * ((1 + q1) * q2 - (1 - q1) * q3)) + 1
 
     return round(distance)
 
