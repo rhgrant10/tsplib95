@@ -23,6 +23,10 @@ class ParsingError(Exception):
     TSPLIB95 file format.
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.line = None
+
 
 class Stream:
     def __init__(self, lines):
@@ -88,7 +92,7 @@ def parse(filename):
         while transition:
             transition = transition(data, stream)
     except ParsingError as e:
-        e.args[0] += f' (line: {repr(stream.line)})'
+        e.line = stream.line
         raise
 
     return data
