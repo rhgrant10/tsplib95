@@ -71,20 +71,13 @@ def read_integer_sequence(stream):
             break
 
 
-def read_input_file(filename):
-    with open(filename) as f:
-        lines = f.read().splitlines()
-    return lines
-
-
 def split_kv(line):
     k, v = line.split(':', 1)
     return k.strip(), v.strip()
 
 
-def parse(filename):
-    lines = read_input_file(filename)
-    stream = Stream(lines)
+def parse(text):
+    stream = Stream(text.splitlines())
     data = {}
 
     try:

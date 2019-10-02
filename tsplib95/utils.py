@@ -13,8 +13,8 @@ def load_problem(filepath, special=None):
     :return: problem instance
     :rtype: :class:`~Problem`
     """
-    data = parser.parse(filepath)
-    return models.Problem(special=special, **data)
+    with open(filepath) as f:
+        return load_problem_fromstring(f.read())
 
 
 def load_solution(filepath):
@@ -24,8 +24,8 @@ def load_solution(filepath):
     :return: solution instance
     :rtype: :class:`~Solution`
     """
-    data = parser.parse(filepath)
-    return models.Solution(**data)
+    with open(filepath) as f:
+        return load_solution_fromstring(f.read())
 
 
 def load_unknown(filepath):
@@ -37,7 +37,43 @@ def load_unknown(filepath):
     :param str filepath: path to a TSPLIB problem file
     :return: either a problem or solution instance
     """
-    data = parser.parse(filepath)
+    with open(filepath) as f:
+        return load_unknown_fromstring(f.read())
+
+
+def load_problem_fromstring(text, special=None):
+    """Load a problem from raw text.
+
+    :param str text: text of a TSPLIB problem
+    :param callable special: special/custom distance function
+    :return: problem instance
+    :rtype: :class:`~Problem`
+    """
+    data = parser.parse(text)
+    return models.Problem(special=special, **data)
+
+
+def load_solution_fromstring(text):
+    """Load a solution from raw text.
+
+    :param str text: text of a TSPLIB solution
+    :return: solution instance
+    :rtype: :class:`~Solution`
+    """
+    data = parser.parse(text)
+    return models.Solution(special=special, **data)
+
+
+def load_unknown_fromstring(text):
+    """Load any problem/solution from raw text.
+
+    This is particularly useful when you do not know in advance
+    whether the file contains a problem or a solution.
+
+    :param str text: text of a TSPLIB problem/solution
+    :return: either a problem or solution instance
+    """
+    data = parser.parse(text)
     if data['TYPE'] == 'TOUR':
         return models.Solution(**data)
     return models.Problem(**data)
