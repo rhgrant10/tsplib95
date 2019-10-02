@@ -35,7 +35,7 @@ def print_information(files):
 
 def get_tabular_data(files):
     for filepath, file in files.items():
-        yield file.type, file.dimension, filepath
+        yield file.type or '', file.dimension or -1, filepath or ''
 
 
 @click.group()
