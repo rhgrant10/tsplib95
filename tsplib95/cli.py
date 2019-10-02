@@ -4,6 +4,7 @@
 import click
 
 from . import utils
+from . import parser
 
 
 def load(filepaths):
@@ -13,8 +14,12 @@ def load(filepaths):
     for filepath in filepaths:
         s = m - len(filepath)
         click.echo(f'\rLoading {filepath}{"…":<{s}}', nl=False)
-        file = utils.load_unknown(filepath)
-        files[filepath] = file
+        try:
+            file = utils.load_unknown(filepath)
+        except parser.ParsingError as e:
+            click.secho(f'ERROR: {e}', fg='red')
+        else:
+            files[filepath] = file
 
     # looks gnarly but really it's just erasing the last output line
     click.echo(f'\r{" ":<{m + 9}}')
