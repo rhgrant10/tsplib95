@@ -29,7 +29,10 @@ def load_solution(filepath):
 
 
 def load_unknown(filepath):
-    """Load a TSPLIB file.
+    """Load any TSPLIB file.
+
+    This is particularly useful when you do not know in advance
+    whether the file contains a problem or a solution.
 
     :param str filepath: path to a TSPLIB problem file
     :return: either a problem or solution instance
@@ -41,12 +44,24 @@ def load_unknown(filepath):
 
 
 def parse_degrees(coord):
+    """Parse an encoded geocoordinate value into real degrees.
+
+    :param float coord: encoded geocoordinate value
+    :return: real degrees
+    :rtype: float
+    """
     degrees = nint(coord)
     minutes = coord - degrees
     return degrees + minutes * 5 / 3
 
 
 def nint(x):
+    """Round a value to an integer.
+
+    :param float x: original value
+    :return: rounded integer
+    :rtype: int
+    """
     return int(x + 0.5)
 
 
