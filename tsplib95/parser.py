@@ -119,6 +119,10 @@ def process_line(data, stream):
 
 def process_key_value(data, stream):
     key, value = split_kv(stream.line)
+    try:
+        parser = VALUE_TYPES[key]
+    except KeyError:
+        raise ParsingError(f'{key} is not a valid keyword')
     data[key] = VALUE_TYPES[key](value)
     next(stream)
     return process_line
@@ -127,7 +131,7 @@ def process_key_value(data, stream):
 def process_key(data, stream):
     key = stream.line
     next(stream)
-    return {
+    key_parsers = {
         'NODE_COORD_SECTION': parse_node_coords,
         'DEPOT_SECTION': parse_depots,
         'DEMAND_SECTION': parse_demands,
@@ -136,7 +140,11 @@ def process_key(data, stream):
         'DISPLAY_DATA_SECTION': parse_display_data,
         'TOUR_SECTION': parse_tours,
         'EDGE_WEIGHT_SECTION': parse_edge_weights,
-    }[key]
+    }
+    try:
+        return key_parsers[key]
+    except KeyError:
+        raise ParsingError(f'{key} is not a valid keyword')
 
 
 def parse_node_coords(data, stream):
