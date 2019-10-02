@@ -104,3 +104,4 @@ ENV/
 # custom
 cpp-src/
 .vscode/
+.DS_Store
