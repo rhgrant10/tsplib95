@@ -30,15 +30,15 @@ def test_process_key_value_sets_value_for_key():
     assert transition is parser.process_line
 
 
-def test_process_key_value_raises_KeyError_for_invalid_key():
+def test_process_key_value_raises_ParsingError_for_invalid_key():
     m_stream = mock.MagicMock()
     m_stream.line = 'bar: foo'
 
-    with pytest.raises(KeyError):
+    with pytest.raises(parser.ParsingError):
         parser.process_key_value({}, m_stream)
 
 
-def test_parse_node_coords_with_1_dimensional_coord_raises_Exception():
+def test_parse_node_coords_with_1_dimensional_coord_raises_ParsingError():
     lines = [
         '1 2.3 55.4',
         '2 8.1',
@@ -46,7 +46,7 @@ def test_parse_node_coords_with_1_dimensional_coord_raises_Exception():
     ]
     m_stream = create_mock_stream(lines)
 
-    with pytest.raises(Exception):
+    with pytest.raises(parser.ParsingError):
         parser.parse_node_coords({}, m_stream)
 
 
@@ -64,7 +64,7 @@ def test_parse_node_coords():
     assert data['NODE_COORD_SECTION'] == {1: (2.3, 55.4), 2: (8.1, 10.6)}
 
 
-def test_parse_depot_with_non_int_depot_raises_Exception():
+def test_parse_depot_with_non_int_depot_raises_ParsingException():
     lines = [
         '1',
         '2.4',
@@ -74,7 +74,7 @@ def test_parse_depot_with_non_int_depot_raises_Exception():
     ]
 
     m_stream = create_mock_stream(lines)
-    with pytest.raises(Exception):
+    with pytest.raises(parser.ParsingError):
         parser.parse_depots({}, m_stream)
 
 
@@ -87,7 +87,7 @@ def test_parse_depot_requires_end_of_negative_1():
     ]
 
     m_stream = create_mock_stream(lines)
-    with pytest.raises(Exception):
+    with pytest.raises(parser.ParsingError):
         parser.parse_depots({}, m_stream)
 
 
