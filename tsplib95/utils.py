@@ -61,7 +61,7 @@ def load_solution_fromstring(text):
     :rtype: :class:`~Solution`
     """
     data = parser.parse(text)
-    return models.Solution(special=special, **data)
+    return models.Solution(**data)
 
 
 def load_unknown_fromstring(text):

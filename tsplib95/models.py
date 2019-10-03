@@ -22,7 +22,7 @@ class File:
      * ``dimension`` - DIMENSION
 
     .. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
-    """
+    """  # noqa: E501
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('NAME')

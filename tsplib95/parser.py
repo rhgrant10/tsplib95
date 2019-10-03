@@ -116,7 +116,7 @@ def process_key_value(data, stream):
         parser = VALUE_TYPES[key]
     except KeyError:
         raise ParsingError(f'{key} is not a valid keyword')
-    data[key] = VALUE_TYPES[key](value)
+    data[key] = parser(value)
     next(stream)
     return process_line
 
@@ -279,7 +279,8 @@ def parse_fixed_edges(data, stream):
         try:
             edge = int(u), int(v)
         except ValueError:
-            raise ParsingError('fixed edges must be two integer coordinate indicies')
+            raise ParsingError('fixed edges must be two integer '
+                               'coordinate indicies')
 
         section.append(edge)
         next(stream)
