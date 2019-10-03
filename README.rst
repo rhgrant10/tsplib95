@@ -21,14 +21,13 @@ TSPLIB 95 is a library for working with TSPLIB 95 files.
 
 For now...
 
-* documentation is not complete
-* only 3.6 is supported (I am willing to remove f-strings if there is support; I might also spontaneously decide to do that)
-* there are some things missing (being able to write out a TSPLIB file chief among them)
+* the documentation is not complete
+* only 3.6+ is supported
 
 Features
 --------
 
-- read and use TSPLIB95 files like a boss
+- read and use the TSPLIB95 file format like a boss
 - easily convert problems into ``networkx.Graph`` instances
 - supports and implements the following ``EDGE_WEIGHT_TYPE`` s
 
