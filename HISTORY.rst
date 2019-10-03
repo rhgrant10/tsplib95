@@ -2,6 +2,15 @@
 History
 =======
 
+0.5.0 (2019-10-02)
+------------------
+
+* New loaders that take just the text - no file necessary!
+* Invalid keywords now result in a ``ParsingError``
+* Update the CLI to catch and gracefully handle ``ParsingError``
+* Fixed a bug when trying to amend an exception with line information
+
+
 0.4.0 (2019-09-21)
 ------------------
 
