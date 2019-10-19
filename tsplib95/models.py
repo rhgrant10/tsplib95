@@ -110,11 +110,11 @@ class Problem(File):
         self.display_data_type = kwargs.get('DISPLAY_DATA_TYPE')
 
         # data
-        self.depots = kwargs.get('DEPOT_SECTION')
-        self.demands = kwargs.get('DEMAND_SECTION')
-        self.node_coords = kwargs.get('NODE_COORD_SECTION')
+        self.depots = kwargs.get('DEPOT_SECTION', set())
+        self.demands = kwargs.get('DEMAND_SECTION', dict())
+        self.node_coords = kwargs.get('NODE_COORD_SECTION', dict())
         self.edge_weights = kwargs.get('EDGE_WEIGHT_SECTION')
-        self.display_data = kwargs.get('DISPLAY_DATA_SECTION')
+        self.display_data = kwargs.get('DISPLAY_DATA_SECTION', dict())
         self.edge_data = kwargs.get('EDGE_DATA_SECTION')
         self.fixed_edges = kwargs.get('FIXED_EDGES_SECTION', set())
 
@@ -281,20 +281,41 @@ class Problem(File):
         if self.is_depictable():
             try:
                 return self.display_data[i]
-            except TypeError:
+            except (KeyError, TypeError):
                 return self.node_coords[i]
         else:
             return None
 
-    def get_graph(self):
-        """Return the corresponding networkx.Graph instance.
+    def get_graph(self, normalize=False):
+        """Return a networkx graph instance representing the problem.
 
-        If the graph is not symmetric then a DiGraph is returned. If present,
-        the coordinates of each node are set to the ``coord`` key, and each
-        edge has an ``is_fixed`` key that is True if the edge is in the list
-        of fixed edges.
+        The metadata of the problem is associated with the graph itself.
+        Additional problem information is associated with the nodes and edges.
+        For example:
 
+        .. code-block:: python
+
+            >>> G.graph
+            {'name': None,
+             'comment': '14-Staedte in Burma (Zaw Win)',
+             'type': 'TSP',
+             'dimension': 14,
+             'capacity': None}
+            >>> G.nodes[1]
+            {'coord': (16.47, 96.1),
+             'display': None,
+             'demand': None,
+             'is_depot': False}
+            >>> G.edges[1, 2]
+            {'weight': 2, 'is_fixed': False}
+
+        If the graph is not symmetric then a :class:`networkx.DiGraph` is
+        returned. Optionally, the nodes can be renamed to be sequential and
+        zero-indexed.
+
+        :param bool normalize: rename nodes to be zero-indexed
         :return: graph
+        :rtype: :class:`networkx.Graph`
         """
         G = networkx.Graph() if self.is_symmetric() else networkx.DiGraph()
         G.graph['name'] = self.name
@@ -302,17 +323,24 @@ class Problem(File):
         G.graph['type'] = self.type
         G.graph['dimension'] = self.dimension
         G.graph['capacity'] = self.capacity
-        G.graph['depots'] = self.depots
-        G.graph['demands'] = self.demands
-        G.graph['fixed_edges'] = self.fixed_edges
 
-        if not self.is_explicit():
-            for i, coord in self.node_coords.items():
-                G.add_node(i, coord=coord)
+        # set up a map from original node name to new node name
+        nodes = list(self.get_nodes())
+        if normalize:
+            names = {n: i for i, n in enumerate(nodes)}
+        else:
+            names = {n: n for n in nodes}
 
-        for i, j in self.get_edges():
-            weight = self.wfunc(i, j)
-            is_fixed = (i, j) in self.fixed_edges
-            G.add_edge(i, j, weight=weight, is_fixed=is_fixed)
+        for n in nodes:
+            is_depot = n in self.depots
+            G.add_node(names[n], coord=self.node_coords.get(n),
+                       display=self.display_data.get(n),
+                       demand=self.demands.get(n),
+                       is_depot=is_depot)
+
+        for a, b in self.get_edges():
+            weight = self.wfunc(a, b)
+            is_fixed = (a, b) in self.fixed_edges
+            G.add_edge(names[a], names[b], weight=weight, is_fixed=is_fixed)
 
         return G

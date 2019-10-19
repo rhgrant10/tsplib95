@@ -99,3 +99,61 @@ def test_is_depictable(problem, correct):
 ])
 def test_get_display(problem, correct):
     assert problem.get_display(0) is correct
+
+
+@pytest.mark.parametrize('node_coords,normalize,correct', [
+    ({2: (0, 0), 4: (0, 0)}, False, [2, 4]),
+    ({2: (0, 0), 4: (0, 0)}, True, [0, 1]),
+])
+def test_get_graph_node_normalization(node_coords, normalize, correct):
+    problem = create_problem(node_coords=node_coords)
+    graph = problem.get_graph(normalize=normalize)
+    assert list(graph.nodes) == correct
+
+
+@pytest.fixture
+def complete_problem():
+    return create_problem(
+        name='foo',
+        comment='bar',
+        type='baz',
+        dimension=42,
+        capacity=11,
+        weight_function='EUC2D',
+        edge_data_format='EDGE_LIST',
+        node_coords={0: (0, 1), 1: (0, 0), 2: (1, 0)},
+        edge_data=[(0, 1), (1, 2), (2, 0)],
+        display_data={0: (10, 100), 1: (10, 10), 2: (100, 10)},
+        depots=[1],
+        fixed_edges=[(2, 0)],
+        demands={0: 73, 1: 0},
+    )
+
+
+def test_get_graph_metadata(complete_problem):
+    G = complete_problem.get_graph()
+    assert G.graph == {
+        'name': 'foo',
+        'comment': 'bar',
+        'type': 'baz',
+        'dimension': 42,
+        'capacity': 11,
+    }
+
+
+@pytest.mark.parametrize('n,metadata', [
+    (0, {'coord': (0, 1), 'display': (10, 100), 'demand': 73, 'is_depot': False}),
+    (1, {'coord': (0, 0), 'display': (10, 10), 'demand': 0, 'is_depot': True}),
+])
+def test_get_node_metadata(complete_problem, n, metadata):
+    G = complete_problem.get_graph()
+    assert G.nodes[n] == metadata
+
+
+@pytest.mark.parametrize('e,metadata', [
+    ((0, 1), {'weight': 1, 'is_fixed': False}),
+    ((2, 0), {'weight': 1, 'is_fixed': True}),
+])
+def test_get_edge_metadata(complete_problem, e, metadata):
+    G = complete_problem.get_graph()
+    assert G.edges[e] == metadata
