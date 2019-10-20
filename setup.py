@@ -45,6 +45,7 @@ setup(
     install_requires=requirements,
     license="Apache Software License 2.0",
     long_description=readme + '\n\n' + history,
+    long_description_content_type='text/x-rst',
     include_package_data=True,
     keywords='tsplib95',
     name='tsplib95',
@@ -53,6 +54,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/rhgrant10/tsplib95',
-    version='0.5.0',
+    version='0.6.0',
     zip_safe=True,
 )

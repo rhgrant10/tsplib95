@@ -2,6 +2,22 @@
 History
 =======
 
+0.6.0 (2019-10-19)
+------------------
+
+* Changes to the conversion into a ``networkx.Graph``:
+
+    * Depot, demand, and fixed edge data have been removed from graph metadata.
+      Depot and demand data is now associated with individual nodes like fixed edge
+      data was (and still is).
+    * Add a ``normalized`` parameter to allow nodes to be renamed as zero-index
+      integers when obtaining a ``networkx.Graph``.
+
+* Depots, demands, node coordinates, and display data fields now default to
+  empty containers rather than ``None``.
+* Fixed twine/PyPI warning about long description mime type
+
+
 0.5.0 (2019-10-02)
 ------------------
 
