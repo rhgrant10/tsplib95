@@ -92,7 +92,6 @@ def parse(text):
 
 
 def start(data, stream):
-    next(stream)
     return process_line
 
 
