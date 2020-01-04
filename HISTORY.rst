@@ -2,6 +2,12 @@
 History
 =======
 
+0.6.1 (2020-01-04)
+------------------
+
+* Fix bug that caused the parser to ignore the first line of a file
+
+
 0.6.0 (2019-10-19)
 ------------------
 
