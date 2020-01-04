@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from unittest import mock
+import textwrap
 
 import pytest
 
@@ -111,3 +112,21 @@ def test_split_kv():
     k, v = parser.split_kv('foo: bar: baz')
     assert k == 'foo'
     assert v == 'bar: baz'
+
+
+def test_every_line_parsed():
+    text = textwrap.dedent('''
+        NAME: foo
+        DIMENSION: 3
+        NODE_COORD_SECTION
+         1 0 0
+         2 3 0
+         3 3 4
+        COMMENT: bar
+        ''').strip()
+    data = parser.parse(text)
+    assert ('NAME' in data and
+            'DIMENSION' in data and
+            'NODE_COORD_SECTION' in data and
+            'COMMENT' in data and
+            sorted(data['NODE_COORD_SECTION']) == [1, 2, 3])
