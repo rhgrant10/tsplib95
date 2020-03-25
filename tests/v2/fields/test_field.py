@@ -5,7 +5,7 @@ from tsplib95.v2 import fields
 
 @pytest.fixture
 def field():
-    return fields.Field(name='foo')
+    return fields.Field('foo')
 
 
 def test_field_requires_name():
@@ -14,7 +14,7 @@ def test_field_requires_name():
 
 
 def test_field_name(field):
-    assert field.name == 'foo'
+    assert field.keyword == 'foo'
 
 
 def test_field_render(field):
@@ -22,7 +22,7 @@ def test_field_render(field):
 
 
 def test_field_parse(field):
-    assert field.parse('foo 42') == 'foo 42'
+    assert field.parse('bar 42') == 'bar 42'
 
 
 def test_field_validate(field):

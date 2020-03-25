@@ -3,8 +3,8 @@ from . import exceptions
 
 
 class Field:
-    def __init__(self, name, *, transformer=None):
-        self.name = name
+    def __init__(self, keyword, *, transformer=None):
+        self.keyword = keyword
         self.tf = transformer or self.build_transformer()
 
     @classmethod

@@ -1,5 +1,6 @@
 import pytest
 
+from tsplib95.v2 import exceptions
 from tsplib95.v2 import transformers as T
 
 
@@ -13,7 +14,7 @@ def tf():
     ('-2', -2, None),
     ('0', 0, None),
     ('3.14', 3.14, None),
-    ('', None, ValueError),
+    ('', None, exceptions.ParsingError),
 ])
 def test_transformer_parse(tf, text, value, error):
     if error is None:

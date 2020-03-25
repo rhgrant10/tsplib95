@@ -5,38 +5,64 @@ from . import fields as F
 
 class FileMeta(type):
     def __new__(cls, name, bases, data):
-        data['fields'] = {}
+        fields = {}
         for name, attr in list(data.items()):
             if isinstance(attr, F.Field):
-                data['fields'][attr.name] = attr
-                data['fields'][attr.name].name = name  # tricky
+                # swap the keyword and the name
+                fields[attr.keyword] = attr
+                fields[attr.keyword].keyword = name  # tricky
+        data['fields'] = fields
         return super().__new__(cls, name, bases, data)
-
-    def parse(cls, text):
-        names = '|'.join(cls.fields)
-        sep = '''\s*:\s*|\s*\n'''
-        pattern = f'({names}|EOF)(?:{sep})'
-        regex = re.compile(pattern, re.M)
-
-        __, *results = regex.split(text)
-        field_names = results[::2]
-        field_values = results[1::2]
-
-        data = {}
-        for name, value in zip(field_names, field_values):
-            if name != 'EOF':
-                field = cls.fields[name]
-                value = field.parse(value)
-                data[field.name] = value
-
-        return data
-
-    def render(cls, value):
-        pass
 
 
 class Problem(metaclass=FileMeta):
-    pass
+
+    def __init__(self, **data):
+        for k, v in data.items():
+            setattr(self, k, v)
+
+    @classmethod
+    def parse(cls, text):
+        # prepare the regex for all known keys
+        keywords = '|'.join(cls.fields)
+        sep = '''\s*:\s*|\s*\n'''
+        pattern = f'({keywords}|EOF)(?:{sep})'
+
+        # split the whole text by known keys
+        regex = re.compile(pattern, re.M)
+        __, *results = regex.split(text)
+
+        # pair keys and values
+        field_keywords = results[::2]
+        field_values = results[1::2]
+
+        # parse into a dictionary
+        data = {}
+        for keyword, value in zip(field_keywords, field_values):
+            if keyword != 'EOF':
+                field = cls.fields[keyword]
+                value = field.parse(value.strip())
+                data[field.keyword] = value
+
+        # return as a model
+        return cls(**data)
+
+    def render(self):
+        keywords = {f.keyword: kw for kw, f in self.__class__.fields.items()}
+
+        rendered = {}
+        for name, value in vars(self).items():
+            keyword = keywords[name]
+            field = self.__class__.fields[keyword]
+            rendered[keyword] = field.render(value)
+
+        kvpairs = []
+        for keyword, value in rendered.items():
+            sep = ':\n' if '\n' in value else ': '
+            kvpairs.append(f'{keyword}{sep}{value}')
+        kvpairs.append('EOF')
+
+        return '\n'.join(kvpairs)
 
 
 class StandardProblem(Problem):
@@ -61,9 +87,3 @@ class StandardProblem(Problem):
     demands = F.DemandsField('DEMAND_SECTION')
 
     tours = F.ToursField('TOUR_SECTION')
-
-
-# p = Problem.parse(text)
-# print(p.name)
-# p.render()
-# Problem.render(p)

@@ -8,5 +8,5 @@ class ValidationError(TsplibError):
     pass
 
 
-class ParsingError(TsplibError):
+class ParsingError(TsplibError, ValueError):
     pass
