@@ -11,20 +11,21 @@ class FileMeta(type):
                 # swap the keyword and the name
                 fields[attr.keyword] = attr
                 fields[attr.keyword].keyword = name  # tricky
-        data['fields'] = fields
+        data['_fields'] = fields
         return super().__new__(cls, name, bases, data)
 
 
 class Problem(metaclass=FileMeta):
 
     def __init__(self, **data):
+        # every keyword argument becomes an attribute
         for k, v in data.items():
             setattr(self, k, v)
 
     @classmethod
     def parse(cls, text):
         # prepare the regex for all known keys
-        keywords = '|'.join(cls.fields)
+        keywords = '|'.join(cls._fields)
         sep = '''\s*:\s*|\s*\n'''
         pattern = f'({keywords}|EOF)(?:{sep})'
 
@@ -40,7 +41,7 @@ class Problem(metaclass=FileMeta):
         data = {}
         for keyword, value in zip(field_keywords, field_values):
             if keyword != 'EOF':
-                field = cls.fields[keyword]
+                field = cls._fields[keyword]
                 value = field.parse(value.strip())
                 data[field.keyword] = value
 
@@ -48,20 +49,24 @@ class Problem(metaclass=FileMeta):
         return cls(**data)
 
     def render(self):
-        keywords = {f.keyword: kw for kw, f in self.__class__.fields.items()}
+        # map keywords by name
+        keywords = {f.keyword: kw for kw, f in self.__class__._fields.items()}
 
+        # render each value by keyword
         rendered = {}
         for name, value in vars(self).items():
             keyword = keywords[name]
-            field = self.__class__.fields[keyword]
+            field = self.__class__._fields[keyword]
             rendered[keyword] = field.render(value)
 
+        # build keyword-value pairs with the seperator
         kvpairs = []
         for keyword, value in rendered.items():
             sep = ':\n' if '\n' in value else ': '
             kvpairs.append(f'{keyword}{sep}{value}')
         kvpairs.append('EOF')
 
+        # join and return the result
         return '\n'.join(kvpairs)
 
 
