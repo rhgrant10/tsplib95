@@ -18,7 +18,7 @@ converts problems into ``networkx.Graph`` instances.
 License: Apache Software License 2.0
 
 * Read the **docs**: https://tsplib95.readthedocs.io/
-* Install from **PyPI**: https://pypi.org/project/tsplib95/
+* Install from **PyPI**: https://pypi.org/project/tsplib95/0.4.0/
 * Contribute **source**: https://github.com/rhgrant10/tsplib95
 
 Example

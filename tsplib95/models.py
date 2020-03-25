@@ -5,6 +5,7 @@ import networkx
 
 from . import matrix
 from . import distances
+from . import renderer
 from . import utils
 
 
@@ -24,11 +25,11 @@ class File:
     .. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
     """  # noqa: E501
 
-    def __init__(self, **kwargs):
-        self.name = kwargs.get('NAME')
-        self.comment = kwargs.get('COMMENT')
-        self.type = kwargs.get('TYPE')
-        self.dimension = kwargs.get('DIMENSION')
+    def __init__(self, name=None, comment=None, type=None, dimension=None):
+        self.name = name
+        self.comment = comment
+        self.type = type
+        self.dimension = dimension
 
 
 class Solution(File):
@@ -43,9 +44,9 @@ class Solution(File):
     The length of a solution is the number of tours it contains.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, *, tours, **kwargs):
         super().__init__(**kwargs)
-        self.tours = kwargs.get('TOUR_SECTION')
+        self.tours = tours
 
     def __len__(self):
         return len(self.tours)
@@ -100,29 +101,41 @@ class Problem(File):
 
     def __init__(self, special=None, **kwargs):
         super().__init__(**kwargs)
-        self.capacity = kwargs.get('CAPACITY')
+    
+    @classmethod
+    def from_keyword_map(cls, kw_map, special=None):
+        problem = cls(special=special)
+        problem.capacity = kwargs.get('CAPACITY')
 
         # specification
-        self.edge_weight_type = kwargs.get('EDGE_WEIGHT_TYPE')
-        self.edge_weight_format = kwargs.get('EDGE_WEIGHT_FORMAT')
-        self.edge_data_format = kwargs.get('EDGE_DATA_FORMAT')
-        self.node_coord_type = kwargs.get('NODE_COORD_TYPE')
-        self.display_data_type = kwargs.get('DISPLAY_DATA_TYPE')
+        problem.edge_weight_type = kwargs.get('EDGE_WEIGHT_TYPE')
+        problem.edge_weight_format = kwargs.get('EDGE_WEIGHT_FORMAT')
+        problem.edge_data_format = kwargs.get('EDGE_DATA_FORMAT')
+        problem.node_coord_type = kwargs.get('NODE_COORD_TYPE')
+        problem.display_data_type = kwargs.get('DISPLAY_DATA_TYPE')
 
         # data
-        self.depots = kwargs.get('DEPOT_SECTION', set())
-        self.demands = kwargs.get('DEMAND_SECTION', dict())
-        self.node_coords = kwargs.get('NODE_COORD_SECTION', dict())
-        self.edge_weights = kwargs.get('EDGE_WEIGHT_SECTION')
-        self.display_data = kwargs.get('DISPLAY_DATA_SECTION', dict())
-        self.edge_data = kwargs.get('EDGE_DATA_SECTION')
-        self.fixed_edges = kwargs.get('FIXED_EDGES_SECTION', set())
+        problem.depots = kwargs.get('DEPOT_SECTION', set())
+        problem.demands = kwargs.get('DEMAND_SECTION', dict())
+        problem.node_coords = kwargs.get('NODE_COORD_SECTION', dict())
+        problem.edge_weights = kwargs.get('EDGE_WEIGHT_SECTION')
+        problem.display_data = kwargs.get('DISPLAY_DATA_SECTION', dict())
+        problem.edge_data = kwargs.get('EDGE_DATA_SECTION')
+        problem.fixed_edges = kwargs.get('FIXED_EDGES_SECTION', set())
 
-        self.wfunc = None
-        self.special = special
+        return problem
 
     def __len__(self):
         return self.dimension
+
+    def __repr__(self):
+        return (f'<Problem(name={repr(self.name)}, '
+                f'type={repr(self.type)}, '
+                f'dimension={self.dimension})')
+
+    def __str__(self):
+        r = renderer.Renderer()
+        return r.render(self)
 
     @property
     def special(self):

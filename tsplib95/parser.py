@@ -16,7 +16,11 @@ VALUE_TYPES = {
 }
 
 
-class ParsingError(Exception):
+class TsplibError(Exception):
+    """Base exception type for the library."""
+
+
+class ParsingError(TsplibError):
     """Error raised when a given file cannot be parsed.
 
     This indicates the file does not conform to the standard
@@ -26,6 +30,13 @@ class ParsingError(Exception):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.line = None
+
+
+# FIXME: how will this error be used?
+class ValidationError(TsplibError):
+    def __init__(self, *errors):
+        super().__init__(f'validation failed because: {errors}')
+        self.errors = errors
 
 
 class Stream:
@@ -47,35 +58,6 @@ class Stream:
         return line
 
 
-def get_next_tour(sequence):
-    tour = []
-    while sequence:
-        index = sequence.pop(0)
-
-        if index == -1:
-            if sequence == [-1]:
-                sequence.pop(0)
-            return tour
-
-        tour.append(index)
-
-    raise ParsingError('all tours must end with -1')
-
-
-def read_integer_sequence(stream):
-    while True:
-        try:
-            yield from map(int, stream.line.split())
-            next(stream)
-        except (ValueError, AttributeError):
-            break
-
-
-def split_kv(line):
-    k, v = line.split(':', 1)
-    return k.strip(), v.strip()
-
-
 def parse(text):
     stream = Stream(text.splitlines())
     data = {}
@@ -87,6 +69,10 @@ def parse(text):
     except ParsingError as e:
         e.line = stream.line
         raise
+
+    errors = validate(data)
+    if errors:
+        raise ValidationError(errors)
 
     return data
 
@@ -118,6 +104,11 @@ def process_key_value(data, stream):
     data[key] = parser(value)
     next(stream)
     return process_line
+
+
+def split_kv(line):
+    k, v = line.split(':', 1)
+    return k.strip(), v.strip()
 
 
 def process_key(data, stream):
@@ -328,3 +319,27 @@ def parse_tours(data, stream):
 def parse_edge_weights(data, stream):
     data['EDGE_WEIGHT_SECTION'] = list(read_integer_sequence(stream))
     return process_line
+
+
+def get_next_tour(sequence):
+    tour = []
+    while sequence:
+        index = sequence.pop(0)
+
+        if index == -1:
+            if sequence == [-1]:
+                sequence.pop(0)
+            return tour
+
+        tour.append(index)
+
+    raise ParsingError('all tours must end with -1')
+
+
+def read_integer_sequence(stream):
+    while True:
+        try:
+            yield from map(int, stream.line.split())
+            next(stream)
+        except (ValueError, AttributeError):
+            break
