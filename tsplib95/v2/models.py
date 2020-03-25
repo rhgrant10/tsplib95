@@ -15,17 +15,21 @@ class FileMeta(type):
     def parse(cls, text):
         names = '|'.join(cls.fields)
         sep = '''\s*:\s*|\s*\n'''
-        pattern = rf'''^\s*(?P<name>{names})(?:{sep})(?P<value>.+)'''
+        pattern = f'({names}|EOF)(?:{sep})'
         regex = re.compile(pattern, re.M)
 
-        data = {}
-        for match in regex.finditer(text):
-            groups = match.groupdict()
-            field = cls.fields[groups['name']]
-            value = field.parse(groups['value'])
-            data[field.name] = value
+        __, *results = regex.split(text)
+        field_names = results[::2]
+        field_values = results[1::2]
 
-        return cls(**data)
+        data = {}
+        for name, value in zip(field_names, field_values):
+            if name != 'EOF':
+                field = cls.fields[name]
+                value = field.parse(value)
+                data[field.name] = value
+
+        return data
 
     def render(cls, value):
         pass
@@ -48,7 +52,7 @@ class StandardProblem(Problem):
     edge_weight_format = F.StringField('EDGE_WEIGHT_FORMAT')
     edge_data_format = F.StringField('EDGE_DATA_FORMAT')
 
-    node_coords = F.IndexedCoordinatesField('NODE_COORDS_SECTION', dimensions=(2, 3))  # noqa: E501
+    node_coords = F.IndexedCoordinatesField('NODE_COORD_SECTION', dimensions=(2, 3))  # noqa: E501
     edge_data = F.EdgeDataField('EDGE_DATA_SECTION')
     edge_weights = F.MatrixField('EDGE_WEIGHT_SECTION')
     display_data = F.IndexedCoordinatesField('DISPLAY_DATA_SECTION', dimensions=2)  # noqa: E501
