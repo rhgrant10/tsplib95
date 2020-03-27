@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import math
 
-from . import parser
 from . import models
 
 
@@ -14,7 +13,7 @@ def load_problem(filepath, special=None):
     :rtype: :class:`~Problem`
     """
     with open(filepath) as f:
-        return load_problem_fromstring(f.read())
+        return load_problem_fromstring(f.read(), special=special)
 
 
 def load_solution(filepath):
@@ -28,19 +27,6 @@ def load_solution(filepath):
         return load_solution_fromstring(f.read())
 
 
-def load_unknown(filepath):
-    """Load any TSPLIB file.
-
-    This is particularly useful when you do not know in advance
-    whether the file contains a problem or a solution.
-
-    :param str filepath: path to a TSPLIB problem file
-    :return: either a problem or solution instance
-    """
-    with open(filepath) as f:
-        return load_unknown_fromstring(f.read())
-
-
 def load_problem_fromstring(text, special=None):
     """Load a problem from raw text.
 
@@ -49,8 +35,7 @@ def load_problem_fromstring(text, special=None):
     :return: problem instance
     :rtype: :class:`~Problem`
     """
-    data = parser.parse(text)
-    return models.Problem(special=special, **data)
+    return models.StandardProblem.parse(text, special=special)
 
 
 def load_solution_fromstring(text):
@@ -60,23 +45,7 @@ def load_solution_fromstring(text):
     :return: solution instance
     :rtype: :class:`~Solution`
     """
-    data = parser.parse(text)
-    return models.Solution(**data)
-
-
-def load_unknown_fromstring(text):
-    """Load any problem/solution from raw text.
-
-    This is particularly useful when you do not know in advance
-    whether the file contains a problem or a solution.
-
-    :param str text: text of a TSPLIB problem/solution
-    :return: either a problem or solution instance
-    """
-    data = parser.parse(text)
-    if data['TYPE'] == 'TOUR':
-        return models.Solution(**data)
-    return models.Problem(**data)
+    return models.StandardProblem.parse(text)
 
 
 def parse_degrees(coord):

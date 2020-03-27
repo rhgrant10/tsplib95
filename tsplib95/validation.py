@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 
 def validate(data):
@@ -20,7 +21,6 @@ def validate(data):
                 message = 'found {num_weights} edge weights (expected {expected})'
                 error = ValidationError('EDGE_WEIGHT_SECTION', message)
                 errors.append(error)
-
 
 
 def get_matrix_stream_lengths(dimension):

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from . import bisep
 from . import exceptions
 
@@ -7,6 +8,8 @@ class Transformer:
         return text
 
     def render(self, value):
+        if value is None:
+            return ''
         return str(value)
 
     def validate(self, value):
@@ -157,8 +160,7 @@ class UnionT(Transformer):
             except Exception:
                 pass
         raise exceptions.ParsingError('no transformer in the union '
-                                      'could parse the text '
-                                      'into a value')
+                                      f'could parse the text: {text}')
 
     def render(self, value):
         for tf in self.transformers:
@@ -167,8 +169,7 @@ class UnionT(Transformer):
             except Exception:
                 pass
         raise exceptions.ParsingError('no transformer in the union '
-                                      'could render the value'
-                                      'into text')
+                                      f'could render the value: {value}')
 
 
 class NumberT(UnionT):

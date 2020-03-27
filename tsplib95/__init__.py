@@ -7,10 +7,16 @@ __email__ = 'rhgrant10@gmail.com'
 __version__ = '0.6.1'
 
 
+from . import bisep  # noqa: F401
 from . import distances  # noqa: F401
+from . import exceptions  # noqa: F401
+from . import fields  # noqa: F401
 from . import matrix  # noqa: F401
-from .models import Problem  # noqa: F401
-from .models import Solution  # noqa: F401
-from .parser import parse  # noqa: F401
-from .utils import load_problem  # noqa: F401
-from .utils import load_solution  # noqa: F401
+from . import models  # noqa: F401
+from . import transformers  # noqa: F401
+from . import utils  # noqa: F401
+
+from .models import StandardProblem
+
+
+parse = StandardProblem.parse

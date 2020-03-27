@@ -1,141 +1,132 @@
 # -*- coding: utf-8 -*-
 import itertools
+import re
 
 import networkx
 
+from . import fields as F
 from . import matrix
 from . import distances
-from . import renderer
 from . import utils
 
 
-class File:
-    """Base file format type.
-
-    This class isn't meant to be used directly. It contains the common keyword
-    values among all formats. Note that all information is optional. Missing
-    information values are set to None. See the official TSPLIB_ documentation
-    for more details.
-
-     * ``name`` - NAME
-     * ``comment`` - COMMENT
-     * ``type`` - TYPE
-     * ``dimension`` - DIMENSION
-
-    .. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
-    """  # noqa: E501
-
-    def __init__(self, name=None, comment=None, type=None, dimension=None):
-        self.name = name
-        self.comment = comment
-        self.type = type
-        self.dimension = dimension
-
-
-class Solution(File):
-    """A TSPLIB solution file containing one or more tours to a problem.
-
-     * ``name`` - NAME
-     * ``comment`` - COMMENT
-     * ``type`` - TYPE
-     * ``dimension`` - DIMENSION
-     * ``tours`` - TOUR_SECTION
-
-    The length of a solution is the number of tours it contains.
-    """
-
-    def __init__(self, *, tours, **kwargs):
-        super().__init__(**kwargs)
-        self.tours = tours
-
-    def __len__(self):
-        return len(self.tours)
+class FileMeta(type):
+    def __new__(cls, name, bases, data):
+        # we need to map the fields by keyword and by field name
+        # data is a dictionary of class attributes, some of which are fields
+        # we need to pop the fields out and use them to create two maps
+        # one by keyword and one by field name
+        fields_by_name = {}
+        fields_by_keyword = {}
+        names_by_keyword = {}
+        keywords_by_name = {}
+        for name in list(data):
+            if isinstance(data[name], F.Field):
+                field = data.pop(name)
+                fields_by_name[name] = field
+                fields_by_keyword[field.keyword] = field
+                names_by_keyword[field.keyword] = name
+                keywords_by_name[name] = field.keyword
+        data['fields_by_name'] = fields_by_name
+        data['fields_by_keyword'] = fields_by_keyword
+        data['names_by_keyword'] = names_by_keyword
+        data['keywords_by_name'] = keywords_by_name
+        return super().__new__(cls, name, bases, data)
 
 
-class Problem(File):
-    """A TSPLIB problem file.
+class Problem(metaclass=FileMeta):
 
-    Provides a python-friendly way to access the fields of a TSPLIB probem.
-    The fields are mapped as follows:
+    def __init__(self, special=None, **data):
+        # every keyword argument becomes an attribute
+        for name, value in data.items():
+            setattr(self, name, value)
+        self._special = special
 
-     * ``name`` - NAME
-     * ``comment`` - COMMENT
-     * ``type`` - TYPE
-     * ``dimension`` - DIMENSION
-     * ``capacity`` - CAPACITY
-     * ``edge_weight_type`` - EDGE_WEIGHT_TYPE
-     * ``edge_weight_format`` - EDGE_WEIGHT_FORMAT
-     * ``edge_data_format`` - EDGE_DATA_FORMAT
-     * ``node_coord_type`` - NODE_COORD_TYPE
-     * ``display_data_type`` - DISPLAY_DATA_TYPE
-     * ``depots`` - DEPOT_SECTION
-     * ``demands`` - DEMAND_SECTION
-     * ``node_coords`` - NODE_COORD_SECTION
-     * ``edge_weights`` - EDGE_WEIGHT_SECTION
-     * ``display_data`` - DISPLAY_DATA_SECTION
-     * ``edge_data`` - EDGE_DATA_SECTION
-     * ``fixed_edges`` - FIXED_EDGES_SECTION
+    @classmethod
+    def parse(cls, text, special=None):
+        # prepare the regex for all known keys
+        keywords = '|'.join(cls.fields_by_keyword)
+        sep = '''\s*:\s*|\s*\n'''
+        pattern = f'({keywords}|EOF)(?:{sep})'
 
-    For problems that require a special distance function, you must set the
-    special function in one of two ways:
+        # split the whole text by known keys
+        regex = re.compile(pattern, re.M)
+        __, *results = regex.split(text)
 
-    .. code-block:: python
+        # pair keys and values
+        field_keywords = results[::2]
+        field_values = results[1::2]
 
-        >>> problem = Problem(special=func, ...)  # at creation time
-        >>> problem.special = func                # on existing problem
+        # parse into a dictionary
+        data = {}
+        for keyword, value in zip(field_keywords, field_values):
+            if keyword != 'EOF':
+                field = cls.fields_by_keyword[keyword]
+                name = cls.names_by_keyword[keyword]
+                data[name] = field.parse(value.strip())
 
-    Special distance functions are ignored for explicit problems but are
-    required for some.
+        # return as a model
+        return cls(special=special, **data)
 
-    Regardless of problem type or specification, the weight of the edge between
-    two nodes given by index can always be found using ``wfunc``. For example,
-    to get the weight of the edge between nodes 13 and 6:
+    def __str__(self):
+        return self.render()
 
-    .. code-block:: python
+    def __getattribute__(self, name):
+        try:
+            return object.__getattribute__(self, '__dict__')[name]
+        except KeyError:
+            pass
+        try:
+            cls = object.__getattribute__(self, '__class__')
+            return cls.fields_by_name[name].get_default_value()
+        except KeyError:
+            return super().__getattribute__(name)
 
-        >>> problem.wfunc(13, 6)
-        87
+    def render(self):
+        # render each value by keyword
+        rendered = {}
+        for name, field in self.__class__.fields_by_name.items():
+            if name in self.__dict__:  # has had a value set
+                rendered[field.keyword] = field.render(getattr(self, name))
 
-    The length of a problem is the number of nodes it contains.
-    """
+        # build keyword-value pairs with the separator
+        kvpairs = []
+        for keyword, value in rendered.items():
+            sep = ':\n' if '\n' in value else ': '
+            kvpairs.append(f'{keyword}{sep}{value}')
+        kvpairs.append('EOF')
+
+        # join and return the result
+        return '\n'.join(kvpairs)
+
+
+class StandardProblem(Problem):
+    name = F.StringField('NAME')
+    comment = F.StringField('COMMENT')
+    type = F.StringField('TYPE')
+    dimension = F.IntegerField('DIMENSION')
+
+    capacity = F.IntegerField('CAPACITY')
+    node_coord_type = F.StringField('NODE_COORD_TYPE')
+    edge_weight_type = F.StringField('EDGE_WEIGHT_TYPE')
+    display_data_type = F.StringField('DISPLAY_DATA_TYPE')
+    edge_weight_format = F.StringField('EDGE_WEIGHT_FORMAT')
+    edge_data_format = F.StringField('EDGE_DATA_FORMAT')
+
+    node_coords = F.IndexedCoordinatesField('NODE_COORD_SECTION', dimensions=(2, 3))  # noqa: E501
+    edge_data = F.EdgeDataField('EDGE_DATA_SECTION')
+    edge_weights = F.MatrixField('EDGE_WEIGHT_SECTION')
+    display_data = F.IndexedCoordinatesField('DISPLAY_DATA_SECTION', dimensions=2)  # noqa: E501
+    fixed_edges = F.EdgeListField('FIXED_EDGES_SECTION')
+    depots = F.DepotsField('DEPOT_SECTION')
+    demands = F.DemandsField('DEMAND_SECTION')
+
+    tours = F.ToursField('TOUR_SECTION')
 
     def __init__(self, special=None, **kwargs):
         super().__init__(**kwargs)
-    
-    @classmethod
-    def from_keyword_map(cls, kw_map, special=None):
-        problem = cls(special=special)
-        problem.capacity = kwargs.get('CAPACITY')
-
-        # specification
-        problem.edge_weight_type = kwargs.get('EDGE_WEIGHT_TYPE')
-        problem.edge_weight_format = kwargs.get('EDGE_WEIGHT_FORMAT')
-        problem.edge_data_format = kwargs.get('EDGE_DATA_FORMAT')
-        problem.node_coord_type = kwargs.get('NODE_COORD_TYPE')
-        problem.display_data_type = kwargs.get('DISPLAY_DATA_TYPE')
-
-        # data
-        problem.depots = kwargs.get('DEPOT_SECTION', set())
-        problem.demands = kwargs.get('DEMAND_SECTION', dict())
-        problem.node_coords = kwargs.get('NODE_COORD_SECTION', dict())
-        problem.edge_weights = kwargs.get('EDGE_WEIGHT_SECTION')
-        problem.display_data = kwargs.get('DISPLAY_DATA_SECTION', dict())
-        problem.edge_data = kwargs.get('EDGE_DATA_SECTION')
-        problem.fixed_edges = kwargs.get('FIXED_EDGES_SECTION', set())
-
-        return problem
-
-    def __len__(self):
-        return self.dimension
-
-    def __repr__(self):
-        return (f'<Problem(name={repr(self.name)}, '
-                f'type={repr(self.type)}, '
-                f'dimension={self.dimension})')
-
-    def __str__(self):
-        r = renderer.Renderer()
-        return r.render(self)
+        self.wfunc = None
+        self.special = special
 
     @property
     def special(self):
@@ -228,36 +219,6 @@ class Problem(File):
             solutions.append(weight)
         return solutions
 
-    def _create_wfunc(self, special=None):
-        # smooth out the differences between explicit and calculated problems
-        if self.is_explicit():
-            matrix = self._create_explicit_matrix()
-            return lambda i, j: matrix[i, j]
-        else:
-            return self._create_distance_function(special=special)
-
-    def _create_distance_function(self, special=None):
-        # wrap a distance function so that it takes node indexes, not coords
-        if self.is_special():
-            if special is None:
-                raise Exception('missing needed special weight function')
-            wfunc = special
-        elif self.is_weighted():
-            wfunc = distances.TYPES[self.edge_weight_type]
-        else:
-            return lambda i, j: 1
-
-        def adapter(i, j):
-            return wfunc(self.node_coords[i], self.node_coords[j])
-
-        return adapter
-
-    def _create_explicit_matrix(self):
-        # instantiate the right matrix class for the problem
-        m = min(self.get_nodes())
-        Matrix = matrix.TYPES[self.edge_weight_format]
-        return Matrix(self.edge_weights, self.dimension, min_index=m)
-
     def get_nodes(self):
         """Return an iterator over the nodes.
 
@@ -266,10 +227,26 @@ class Problem(File):
         """
         if self.node_coords:
             return iter(self.node_coords)
-        elif self.display_data:
+
+        if self.display_data:
             return iter(self.display_data)
-        else:
+
+        if self.edge_data_format == 'EDGE_LIST':
+            nodes = set()
+            for a, b in self.edge_data:
+                nodes.update({a, b})
+            return iter(nodes)
+
+        if self.edge_data_format == 'ADJ_LIST':
+            nodes = set()
+            for a, ends in self.edge_data.items():
+                nodes.update({a, *ends})
+            return iter(nodes)
+
+        try:
             return iter(range(self.dimension))
+        except Exception:
+            raise ValueError('undefined nodes')
 
     def get_edges(self):
         """Return an iterator over the edges.
@@ -330,7 +307,10 @@ class Problem(File):
         :return: graph
         :rtype: :class:`networkx.Graph`
         """
+        # directed graphs are fundamentally different
         G = networkx.Graph() if self.is_symmetric() else networkx.DiGraph()
+
+        # add basic graph metadata
         G.graph['name'] = self.name
         G.graph['comment'] = self.comment
         G.graph['type'] = self.type
@@ -344,6 +324,7 @@ class Problem(File):
         else:
             names = {n: n for n in nodes}
 
+        # add every node with some associated metadata
         for n in nodes:
             is_depot = n in self.depots
             G.add_node(names[n], coord=self.node_coords.get(n),
@@ -351,9 +332,43 @@ class Problem(File):
                        demand=self.demands.get(n),
                        is_depot=is_depot)
 
+        # add every edge with some associated metadata
         for a, b in self.get_edges():
             weight = self.wfunc(a, b)
             is_fixed = (a, b) in self.fixed_edges
             G.add_edge(names[a], names[b], weight=weight, is_fixed=is_fixed)
 
+        # return the graph object
         return G
+
+    def _create_wfunc(self, special=None):
+        # handle the differences between explicit and calculated problems
+        if self.is_explicit():
+            matrix = self._create_explicit_matrix()
+            return lambda i, j: matrix[i, j]
+        else:
+            return self._create_distance_function(special=special)
+
+    def _create_distance_function(self, special=None):
+        # wrap a distance function so that it takes node indexes, not coords
+        if self.is_special():
+            # special functions already adhere to the contract
+            if special is None:
+                raise Exception('missing needed special weight function')
+            wfunc = special
+        elif self.is_weighted():
+            wfunc = distances.TYPES[self.edge_weight_type]
+        else:
+            # unweighted graphs are an easy case
+            return lambda i, j: 1
+
+        def adapter(i, j):
+            return wfunc(self.node_coords[i], self.node_coords[j])
+
+        return adapter
+
+    def _create_explicit_matrix(self):
+        # instantiate the right matrix class for the problem
+        m = min(self.get_nodes())
+        Matrix = matrix.TYPES[self.edge_weight_format]
+        return Matrix(self.edge_weights, self.dimension, min_index=m)
