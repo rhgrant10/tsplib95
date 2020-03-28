@@ -1,6 +1,6 @@
 import pytest
 
-from tsplib95.v2 import transformers as T
+from tsplib95 import transformers as T
 
 
 @pytest.fixture
@@ -20,7 +20,7 @@ def test_transformer_parse(tf, text, value):
 
 @pytest.mark.parametrize('value,text', [
     ('foo', 'foo'),
-    (None, 'None'),
+    (None, ''),
     (0, '0'),
     (3.14, '3.14'),
 ])

@@ -1,8 +1,7 @@
 import pytest
 import textwrap
 
-from tsplib95.v2 import exceptions
-from tsplib95.v2 import fields
+from tsplib95 import fields
 
 
 @pytest.fixture

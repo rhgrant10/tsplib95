@@ -46,7 +46,7 @@ class Problem(metaclass=FileMeta):
     def parse(cls, text, special=None):
         # prepare the regex for all known keys
         keywords = '|'.join(cls.fields_by_keyword)
-        sep = '''\s*:\s*|\s*\n'''
+        sep = r'''\s*:\s*|\s*\n'''
         pattern = f'({keywords}|EOF)(?:{sep})'
 
         # split the whole text by known keys

@@ -1,6 +1,6 @@
 import pytest
 
-from tsplib95.v2 import fields
+from tsplib95 import fields
 
 
 cases = [

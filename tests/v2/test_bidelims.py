@@ -1,6 +1,6 @@
 import pytest
 
-from tsplib95.v2 import bisep
+from tsplib95 import bisep
 
 
 @pytest.mark.parametrize('sep,mx,text,items', [

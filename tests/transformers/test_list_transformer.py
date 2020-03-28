@@ -1,6 +1,6 @@
 import pytest
 
-from tsplib95.v2 import transformers as T
+from tsplib95 import transformers as T
 
 
 @pytest.fixture

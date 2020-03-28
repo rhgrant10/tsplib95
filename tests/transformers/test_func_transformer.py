@@ -1,6 +1,6 @@
 import pytest
 
-from tsplib95.v2 import transformers as T
+from tsplib95 import transformers as T
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def test_transformer_parse(tf, text, value, error):
     (42, '42', None),
     (-2, '-2', None),
     (0, '0', None),
-    (None, 'None', None),
+    (None, '', None),
 ])
 def test_transformer_render(tf, value, text, error):
     if error is None:

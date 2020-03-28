@@ -2,8 +2,8 @@ from unittest import mock
 
 import pytest
 
-from tsplib95.v2 import transformers as T
-from tsplib95.v2 import exceptions
+from tsplib95 import transformers as T
+from tsplib95 import exceptions
 
 
 @pytest.fixture

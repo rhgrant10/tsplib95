@@ -1,8 +1,8 @@
 import pytest
 import textwrap
 
-from tsplib95.v2 import exceptions
-from tsplib95.v2 import fields
+from tsplib95 import exceptions
+from tsplib95 import fields
 
 
 def test_field_parse():
