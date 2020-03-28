@@ -4,7 +4,7 @@
 import click
 
 from . import utils
-from . import parser
+from . import exceptions
 
 
 def load(filepaths):
@@ -15,8 +15,8 @@ def load(filepaths):
         s = m - len(filepath)
         click.echo(f'\rLoading {filepath}{"…":<{s}}', nl=False)
         try:
-            file = utils.load_unknown(filepath)
-        except parser.ParsingError as e:
+            file = utils.load_problem(filepath)
+        except exceptions.ParsingError as e:
             click.secho(f'ERROR: {e}', fg='red')
         else:
             files[filepath] = file
