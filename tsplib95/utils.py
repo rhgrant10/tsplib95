@@ -117,10 +117,14 @@ def friendly_join(items, limit=None):
     if limit is not None:
         truncated = len(items) - limit
         items = items[:limit]
-        items.append(f'{truncated} more')
+        if truncated > 0:
+            items.append(f'{truncated} more')
 
-    *items, last = items
+    *items, last_item = items
     if not items:
-        return str(last)
+        return str(last_item)
 
-    return f'{", ".join(items)} and {last}'
+    # oxford commas are important
+    if len(items) == 1:
+        return f'{items[0]} and {last_item}'
+    return f'{", ".join(items)}, and {last_item}'
