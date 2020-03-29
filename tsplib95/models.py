@@ -346,11 +346,6 @@ class StandardProblem(Problem):
         if self.is_explicit():
             matrix = self._create_explicit_matrix()
             return lambda i, j: matrix[i, j]
-        else:
-            return self._create_distance_function(special=special)
-
-    def _create_distance_function(self, special=None):
-        # wrap a distance function so that it takes node indexes, not coords
         if self.is_special():
             if special is None:
                 raise Exception('missing needed special weight function')
@@ -360,6 +355,7 @@ class StandardProblem(Problem):
         else:
             return lambda i, j: 1  # unweighted graphs
 
+        # wrap the distance function so that it takes node indexes, not coords
         def adapter(i, j):
             return wfunc(self.node_coords[i], self.node_coords[j])
 

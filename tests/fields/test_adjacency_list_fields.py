@@ -10,7 +10,13 @@ def adj_list_field():
 
 @pytest.fixture
 def text():
-    return '0 1 2 3 -1\n1 0 2 3 -1\n2 0 1 3 -1\n3 0 1 2 -1\n-1'
+    return '\n'.join([
+        '0 1 2 3 -1',
+        '1 0 2 3 -1',
+        '2 0 1 3 -1',
+        '3 0 1 2 -1',
+        '-1',
+    ])
 
 
 @pytest.fixture

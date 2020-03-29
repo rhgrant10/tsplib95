@@ -67,15 +67,14 @@ class ContainerT(Transformer):
         if self.filter_empty:
             texts = list(filter(None, texts))
 
-        # if specified, ensure the terminal terminates the list
+        # if specified, make sure there's no terminal somwhere in the middle
         if self.terminal is not None:
             try:
                 index = texts.index(self.terminal)
             except ValueError:
-                error = f'items did not end with terminal: {repr(self.terminal)}'
-                raise exceptions.ParsingError(error)
-
-            if index < len(texts) - 1:
+                pass  # happy path
+            else:
+                # uh-oh, found one, so raise an exception with the extra items
                 extra = texts[index + 1:]
                 error = (f'found {len(extra)} extra items after terminal '
                          f'{repr(self.terminal)}, first is {repr(extra[0])}')

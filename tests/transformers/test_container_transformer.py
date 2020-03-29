@@ -17,16 +17,16 @@ def container_tf():
 
 
 @pytest.mark.parametrize('kwargs,correct', [
-    ({'sep': ':'}, ['a b', 'c-d', '--e']),
-    ({'sep': '-'}, ['a b:c', 'd:', 'e']),
-    ({'sep': '-', 'filter_empty': False}, ['a b:c', 'd:', '', 'e']),
-    ({'sep': ':', 'terminal': '--e'}, ['a b', 'c-d']),
-    ({'sep': ':', 'size': 3}, ['a b', 'c-d', '--e']),
+    ({'sep': ':'}, ['a b', 'c-d', '--', 'e']),
+    ({'sep': '-'}, ['a b:c', 'd:', ':e']),
+    ({'sep': '-', 'filter_empty': False}, ['a b:c', 'd:', '', ':e']),
     ({'sep': ':', 'terminal': 'e'}, ['a b', 'c-d', '--']),
+    ({'sep': ':', 'size': 3, 'terminal': 'e'}, ['a b', 'c-d', '--']),
+    ({'sep': ':', 'size': 4}, ['a b', 'c-d', '--', 'e']),
 ])
 def test_container_tf_parse(container_tf, kwargs, correct):
     tf = container_tf(**kwargs)
-    result = tf.parse('a b:c-d:--e')
+    result = tf.parse('a b:c-d:--:e')
     assert result == correct
 
 
@@ -44,6 +44,17 @@ def test_container_tf_parse_no_terminal(container_tf):
     tf = container_tf(terminal='-1')
     with pytest.raises(exceptions.ParsingError):
         tf.parse('a b')
+
+
+def test_container_tf_parse_middle_terminal(container_tf):
+    tf = container_tf(terminal='-1')
+    with pytest.raises(exceptions.ParsingError):
+        tf.parse('a -1 b -1')
+
+
+def test_container_tf_parse_near_middle_terminal(container_tf):
+    tf = container_tf(terminal='-1')
+    assert tf.parse('a -1b -1') == ['a', '-1b']
 
 
 @pytest.mark.parametrize('kwargs,text', [

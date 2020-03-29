@@ -14,7 +14,6 @@ def test_field_parse(f):
         0 0 0
         1 3 4
         2 -1 5
-        -1
     ''')
     assert f.parse(text) == [
         [0, 0.0, 0.0],
@@ -33,7 +32,6 @@ def test_field_render(f):
         0 0.0 0.0
         1 3.0 4.0
         2 -1.0 5.0
-        -1
     ''').strip()
 
 
