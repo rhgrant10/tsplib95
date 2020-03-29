@@ -108,3 +108,19 @@ def pairwise(indexes):
     ends = list(indexes)
     ends += [ends.pop(0)]
     return zip(starts, ends)
+
+
+def friendly_join(items, limit=None):
+    if not items:
+        return ''
+
+    if limit is not None:
+        truncated = len(items) - limit
+        items = items[:limit]
+        items.append(f'{truncated} more')
+
+    *items, last = items
+    if not items:
+        return str(last)
+
+    return f'{", ".join(items)} and {last}'

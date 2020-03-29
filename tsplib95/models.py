@@ -352,15 +352,13 @@ class StandardProblem(Problem):
     def _create_distance_function(self, special=None):
         # wrap a distance function so that it takes node indexes, not coords
         if self.is_special():
-            # special functions already adhere to the contract
             if special is None:
                 raise Exception('missing needed special weight function')
             wfunc = special
         elif self.is_weighted():
             wfunc = distances.TYPES[self.edge_weight_type]
         else:
-            # unweighted graphs are an easy case
-            return lambda i, j: 1
+            return lambda i, j: 1  # unweighted graphs
 
         def adapter(i, j):
             return wfunc(self.node_coords[i], self.node_coords[j])

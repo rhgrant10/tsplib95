@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from . import bisep
 from . import exceptions
+from . import utils
 
 
 class Transformer:
@@ -25,6 +26,17 @@ class FuncT(Transformer):
         return self.func(text)
 
 
+class NumberT(Transformer):
+    def parse(self, text):
+        for func in (int, float):
+            try:
+                return func(text)
+            except ValueError:
+                pass
+        error = f'could not convert text to number: {text}'
+        raise exceptions.ParsingError(error)
+
+
 class ContainerT(Transformer):
     def __init__(self, *, value=None, sep=None, terminal=None,
                  size=None, filter_empty=True):
@@ -35,6 +47,7 @@ class ContainerT(Transformer):
         self.filter_empty = filter_empty
 
     def parse(self, text):
+        # start without unpredictable whitespace
         text = text.strip()
 
         # if we have a terminal, make sure it's there and remove it
@@ -43,27 +56,54 @@ class ContainerT(Transformer):
                 raise exceptions.ParsingError(f'must end with {self.terminal}')
             text = text[:-len(self.terminal)].strip()
 
-        # filter empties, or create an always filter
+        # split the whole text into multiple texts
+        try:
+            texts = self.split_items(text)
+        except Exception as e:
+            message = 'could not split the text'
+            raise exceptions.ParsingError.ammend(e, message)
+
+        # filter out the empties, or don't; it's configurable
         if self.filter_empty:
-            predicate = None
-        else:
-            def predicate(x):
-                return True
+            texts = list(filter(None, texts))
 
-        # split and filter
-        texts = list(filter(predicate, self.split_items(text)))
+        # if specified, ensure the terminal terminates the list
+        if self.terminal is not None:
+            try:
+                index = texts.index(self.terminal)
+            except ValueError:
+                error = f'items did not end with terminal: {repr(self.terminal)}'
+                raise exceptions.ParsingError(error)
 
-        # parse each subitem
-        items = [self.parse_item(text) for text in texts]
+            if index < len(texts) - 1:
+                extra = texts[index + 1:]
+                error = (f'found {len(extra)} extra items after terminal '
+                         f'{repr(self.terminal)}, first is {repr(extra[0])}')
+                raise exceptions.ParsingError(error)
 
-        # if size is specified, make sure its right
+        # parse the texts into items, catching all errors by index
+        items = []
+        errors = []
+        for i, text in enumerate(texts):
+            try:
+                item = self.parse_item(text)
+            except Exception as e:
+                errors.append(f'item.{i}=>{repr(e)}')
+            else:
+                items.append(item)
+
+        # join and report any errors
+        if errors:
+            error = utils.friendly_join(errors, limit=3)
+            raise exceptions.ParsingError(error)
+
+        # if the size is specified, make sure its right
         if self.size and len(items) != self.size:
-            raise exceptions.ParsingError(f'expected {self.size} items, '
-                                          f'found {len(items)}')
+            error = f'expected {self.size} items, found {len(items)}'
+            raise exceptions.ParsingError(error)
 
-        # pack them into a container and return it
-        container = self.pack(items)
-        return container
+        # finally, pack the items into a container and return it
+        return self.pack(items)
 
     def render(self, container):
         # unpack the items from the container and render them
@@ -154,25 +194,25 @@ class UnionT(Transformer):
         self.transformers = tfs
 
     def parse(self, text):
+        errors = []
         for tf in self.transformers:
             try:
                 return tf.parse(text)
-            except Exception:
-                pass
-        raise exceptions.ParsingError('no transformer in the union '
-                                      f'could parse the text: {text}')
+            except Exception as e:
+                errors.append(f'{tf.__class__.__qualname__}=>{repr(e)}')
+        raise exceptions.ParsingError('no transformer in the union could '
+                                      'parse the text, resulting in the '
+                                      'following errors: '
+                                      f'{utils.friendly_join(errors)}')
 
     def render(self, value):
+        errors = []
         for tf in self.transformers:
             try:
                 return tf.render(value)
-            except Exception:
-                pass
-        raise exceptions.ParsingError('no transformer in the union '
-                                      f'could render the value: {value}')
-
-
-class NumberT(UnionT):
-
-    def __init__(self):
-        super().__init__(FuncT(func=int), FuncT(func=float))
+            except Exception as e:
+                errors.append(f'{tf.__class__.__qualname__}=>{repr(e)}')
+        raise exceptions.ParsingError('no transformer in the union could '
+                                      'render the value, resulting in the '
+                                      'following errors: '
+                                      f'{utils.friendly_join(errors)}')

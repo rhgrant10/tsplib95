@@ -11,6 +11,10 @@ class Field:
         self.default = default or self.__class__.default
         self.tf = transformer
 
+    @classmethod
+    def build_transformer(cls):
+        return T.Transformer()
+
     @property
     def tf(self):
         if self._tf is None:
@@ -26,15 +30,19 @@ class Field:
             return self.default()
         return self.default
 
-    @classmethod
-    def build_transformer(cls):
-        return T.Transformer()
-
     def parse(self, text):
-        return self.tf.parse(text)
+        try:
+            return self.tf.parse(text)
+        except exceptions.ParsingError as e:
+            context = f'{self.__class__.__qualname__}({self.keyword})'
+            raise e.ammend(context)
 
     def render(self, value):
-        return self.tf.render(value)
+        try:
+            return self.tf.render(value)
+        except exceptions.RenderingError as e:
+            context = f'{self.__class__.__qualname__}({self.keyword})'
+            raise e.ammend(context)
 
     def validate(self, value):
         return self.tf.validate(value)
@@ -127,7 +135,7 @@ class MatrixField(Field):
     @classmethod
     def build_transformer(cls):
         row = T.ListT(value=T.NumberT())
-        return T.ListT(value=row, terminal='-1', sep='\n')
+        return T.ListT(value=row, sep='\n')
 
 
 class EdgeDataField(Field):
@@ -166,13 +174,3 @@ class ToursField(Field):
     def build_transformer(cls):
         tour = T.ListT(value=T.FuncT(func=int), terminal='-1')
         return T.ListT(value=tour, terminal='-1')
-
-
-"""
-import tsplib95
-with open('archives/problems/tsp/att48.tsp') as f:
-    problem_text = f.read()
-
-problem = tsplib95.parse(problem_text)
-G = problem.get_graph()
-"""
