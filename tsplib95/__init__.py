@@ -16,7 +16,4 @@ from . import models  # noqa: F401
 from . import transformers  # noqa: F401
 from . import utils  # noqa: F401
 
-from .models import StandardProblem
-
-
-parse = StandardProblem.parse
+parse = models.StandardProblem.parse
