@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import re
+
 from . import transformers as T
 from . import exceptions
 
@@ -6,9 +8,29 @@ from . import exceptions
 class Field:
     default = None
 
-    def __init__(self, keyword, *, transformer=None, default=None):
+    def __init__(self, keyword, *, default=None):
         self.keyword = keyword
         self.default = default or self.__class__.default
+
+    def get_default_value(self):
+        if callable(self.default):
+            return self.default()
+        return self.default
+
+    def parse(self, text):
+        raise NotImplementedError()
+
+    def render(self, value):
+        raise NotImplementedError()
+
+    def validate(self, value):
+        pass
+
+
+class TransformerField(Field):
+
+    def __init__(self, keyword, *, transformer=None, **kwargs):
+        super().__init__(keyword, **kwargs)
         self.tf = transformer
 
     @classmethod
@@ -24,11 +46,6 @@ class Field:
     @tf.setter
     def tf(self, value):
         self._tf = value
-
-    def get_default_value(self):
-        if callable(self.default):
-            return self.default()
-        return self.default
 
     def parse(self, text):
         try:
@@ -48,13 +65,13 @@ class Field:
         return self.tf.validate(value)
 
 
-class StringField(Field):
+class StringField(TransformerField):
     @classmethod
     def build_transformer(cls):
         return T.FuncT(func=str)
 
 
-class IntegerField(Field):
+class IntegerField(TransformerField):
     default = 0
 
     @classmethod
@@ -62,7 +79,7 @@ class IntegerField(Field):
         return T.FuncT(func=int)
 
 
-class FloatField(Field):
+class FloatField(TransformerField):
     default = 0.0
 
     @classmethod
@@ -70,7 +87,7 @@ class FloatField(Field):
         return T.FuncT(func=float)
 
 
-class NumberField(Field):
+class NumberField(TransformerField):
     default = 0
 
     @classmethod
@@ -78,7 +95,7 @@ class NumberField(Field):
         return T.NumberT()
 
 
-class IndexedCoordinatesField(Field):
+class IndexedCoordinatesField(TransformerField):
     default = dict
 
     def __init__(self, *args, dimensions=None, **kwargs):
@@ -90,10 +107,14 @@ class IndexedCoordinatesField(Field):
         during validation.
         """
         super().__init__(*args, **kwargs)
+        self.dimensions = self.tuplize(dimensions)
+
+    @staticmethod
+    def tuplize(dimensions):
         try:
-            self.dimensions = tuple(iter(dimensions))
+            return tuple(iter(dimensions))
         except Exception:
-            self.dimensions = (dimensions,) if dimensions else None
+            return (dimensions,) if dimensions else None
 
     @classmethod
     def build_transformer(cls):
@@ -105,11 +126,12 @@ class IndexedCoordinatesField(Field):
         super().validate(value)
         cards = set(len(coord) for coord in value.values())
         if self.dimensions and cards not in ({dim} for dim in self.dimensions):
-            raise exceptions.ValidationError('all coordinates must have the same '  # noqa: E501
-                                             f'dimensionality {self.dimensions}')   # noqa: E501
+            error = ('all coordinates must have the same dimensionality '
+                     f'and it must be one of {self.dimensions}')
+            raise exceptions.ValidationError(error)
 
 
-class AdjacencyListField(Field):
+class AdjacencyListField(TransformerField):
     default = dict
 
     @classmethod
@@ -120,7 +142,7 @@ class AdjacencyListField(Field):
                       terminal='-1')
 
 
-class EdgeListField(Field):
+class EdgeListField(TransformerField):
     default = list
 
     @classmethod
@@ -129,7 +151,7 @@ class EdgeListField(Field):
         return T.ListT(value=edge, terminal='-1', sep='\n')
 
 
-class MatrixField(Field):
+class MatrixField(TransformerField):
     default = list
 
     @classmethod
@@ -138,7 +160,7 @@ class MatrixField(Field):
         return T.ListT(value=row, sep='\n')
 
 
-class EdgeDataField(Field):
+class EdgeDataField(TransformerField):
     default = dict
 
     @classmethod
@@ -148,7 +170,7 @@ class EdgeDataField(Field):
         return T.UnionT(adj_list, edge_list)
 
 
-class DepotsField(Field):
+class DepotsField(TransformerField):
     default = list
 
     @classmethod
@@ -157,7 +179,7 @@ class DepotsField(Field):
         return T.ListT(value=depot, terminal='-1')
 
 
-class DemandsField(Field):
+class DemandsField(TransformerField):
     default = dict
 
     @classmethod
@@ -170,8 +192,51 @@ class DemandsField(Field):
 class ToursField(Field):
     default = list
 
-    @classmethod
-    def build_transformer(cls):
-        tour = T.ListT(value=T.FuncT(func=int), terminal='-1',
-                       terminal_required=False)
-        return T.ListT(value=tour, terminal='-1')
+    def __init__(self, *args, require_terminal=True):
+        super().__init__(*args)
+        self.terminal = '-1'
+        self.require_terminal = require_terminal
+        self._last_terminal = re.compile(rf'(?:\s+|\b){self.terminal}$')
+        self._any_terminal = re.compile(rf'(?:\s+|\b){self.terminal}(?:\b|\s+)')  # noqa: E501
+
+    def parse(self, text):
+        text = text.strip()
+        if not text:
+            return []
+
+        if self.require_terminal:
+            # make sure the terminal terminated
+            match = self._last_terminal.search(text)
+            if not match:
+                terminal = text.split()[-1]
+                error = (f'must terminate in "{self.terminal}", '
+                         f'not {repr(terminal)}')
+                raise exceptions.ParsingError(error)
+
+            # truncate the terminal
+            text = text[:match.start()]
+
+        # split the texts and filter out the empties
+        texts = self._any_terminal.split(text)
+        texts = re.split(rf'(?:\s+|\b){self.terminal}(?:\b|\s+)', text)
+        texts = list(filter(None, texts))
+        if not texts:
+            return []
+
+        # convert the tours from texts to integer lists
+        tours = []
+        for text in texts:
+            try:
+                tour = [int(n) for n in text.strip().split()]
+            except ValueError as e:
+                error = f'could not convert text to node index: {repr(e)}'
+                raise exceptions.ParsingError(error)
+            else:
+                tours.append(tour)
+
+        return tours
+
+    def render(self, tours):
+        tour_strings = [' '.join(tour) for tour in tours]
+        tours_output = ' -1\n'.join(tour_strings)
+        return f'{tours_output}\n-1'

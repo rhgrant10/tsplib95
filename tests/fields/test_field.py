@@ -18,11 +18,13 @@ def test_field_name(field):
 
 
 def test_field_render(field):
-    assert field.render(42) == '42'
+    with pytest.raises(NotImplementedError):
+        field.render(42)
 
 
 def test_field_parse(field):
-    assert field.parse('bar 42') == 'bar 42'
+    with pytest.raises(NotImplementedError):
+        field.parse('42')
 
 
 def test_field_validate(field):
