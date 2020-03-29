@@ -4,48 +4,32 @@ import math
 from . import models
 
 
-def load_problem(filepath, special=None):
+def load_problem(filepath, problem_class=None, special=None):
     """Load a problem at the given filepath.
 
     :param str filepath: path to a TSPLIB problem file
+    :param type problem_class: special/custom problem class
     :param callable special: special/custom distance function
     :return: problem instance
     :rtype: :class:`~Problem`
     """
     with open(filepath) as f:
-        return load_problem_fromstring(f.read(), special=special)
+        return load_problem_fromstring(f.read(),
+                                       problem_class=problem_class,
+                                       special=special)
 
 
-def load_solution(filepath):
-    """Load a solution at the given filepath.
-
-    :param str filepath: path to a TSPLIB solution file
-    :return: solution instance
-    :rtype: :class:`~Solution`
-    """
-    with open(filepath) as f:
-        return load_solution_fromstring(f.read())
-
-
-def load_problem_fromstring(text, special=None):
+def load_problem_fromstring(text, problem_class=None, special=None):
     """Load a problem from raw text.
 
     :param str text: text of a TSPLIB problem
+    :param type problem_class: special/custom problem class
     :param callable special: special/custom distance function
     :return: problem instance
     :rtype: :class:`~Problem`
     """
-    return models.StandardProblem.parse(text, special=special)
-
-
-def load_solution_fromstring(text):
-    """Load a solution from raw text.
-
-    :param str text: text of a TSPLIB solution
-    :return: solution instance
-    :rtype: :class:`~Solution`
-    """
-    return models.StandardProblem.parse(text)
+    Problem = problem_class or models.StandardProblem
+    return Problem.parse(text, special=special)
 
 
 def parse_degrees(coord):

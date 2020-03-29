@@ -39,10 +39,11 @@ class NumberT(Transformer):
 
 class ContainerT(Transformer):
     def __init__(self, *, value=None, sep=None, terminal=None,
-                 size=None, filter_empty=True):
+                 terminal_required=True, size=None, filter_empty=True):
         self.child_tf = value or Transformer()
         self.sep = bisep.from_value(sep)
         self.terminal = terminal
+        self.terminal_required = terminal_required
         self.size = size
         self.filter_empty = filter_empty
 
@@ -52,8 +53,9 @@ class ContainerT(Transformer):
 
         # if we have a terminal, make sure it's there and remove it
         if self.terminal:
-            if not text.endswith(self.terminal):
-                raise exceptions.ParsingError(f'must end with {self.terminal}')
+            if not text.endswith(self.terminal) and self.terminal_required:
+                raise exceptions.ParsingError(f'must end with {self.terminal}, '  # noqa: E501
+                                              f'not "{text[-len(self.terminal):]}"')  # noqa: E501
             text = text[:-len(self.terminal)].strip()
 
         # split the whole text into multiple texts

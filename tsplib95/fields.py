@@ -172,5 +172,6 @@ class ToursField(Field):
 
     @classmethod
     def build_transformer(cls):
-        tour = T.ListT(value=T.FuncT(func=int), terminal='-1')
+        tour = T.ListT(value=T.FuncT(func=int), terminal='-1',
+                       terminal_required=False)
         return T.ListT(value=tour, terminal='-1')
