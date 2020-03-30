@@ -12,9 +12,9 @@ def load_problem(filepath, problem_class=None, special=None):
     :rtype: :class:`~Problem`
     """
     with open(filepath) as f:
-        return load_problem_fromstring(f.read(),
-                                       problem_class=problem_class,
-                                       special=special)
+        problem_text = f.read()
+    return load_problem_fromstring(problem_text, special=special,
+                                   problem_class=problem_class)
 
 
 def load_problem_fromstring(text, problem_class=None, special=None):
