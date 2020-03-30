@@ -4,6 +4,26 @@ import pytest
 from tsplib95 import matrix
 
 
+def test_base_matrix_requires_get_index_implmentation():
+    m = matrix.Matrix(range(1, 10), 3)
+    with pytest.raises(NotImplementedError):
+        m.get_index(0, 0)
+
+
+@pytest.mark.parametrize('i,j', [
+    (99, 1),
+    (99, 99),
+    (1, 99),
+    (-99, 1),
+    (-99, -99),
+    (1, -99),
+])
+def test_matrix_value_at_out_of_bounds(i, j):
+    m = matrix.FullMatrix(range(1, 10), 3)
+    with pytest.raises(IndexError):
+        assert m.value_at(i, j)
+
+
 # 1 2 3
 # 4 5 6
 # 7 8 9

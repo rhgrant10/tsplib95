@@ -23,12 +23,16 @@ def test_bisetp_join(sep, items, text):
     assert d.join(items) == text
 
 
-@pytest.mark.parametrize('v,i,o', [
-    (None, None, None),
-    ('foo', 'foo', 'foo'),
-    (('foo', 'bar'), 'foo', 'bar'),
+@pytest.mark.parametrize('v,i,o,e', [
+    (None, None, None, None),
+    ('foo', 'foo', 'foo', None),
+    (('foo', 'bar'), 'foo', 'bar', None),
+    (('foo', 'bar', 'baz'), 'foo', 'bar', Exception),
 ])
-def test_bisetp_from_value(v, i, o):
-    d = bisep.from_value(v)
-    assert d.i == i
-    assert d.o == o
+def test_bisetp_from_value(v, i, o, e):
+    if e:
+        with pytest.raises(e):
+            bisep.from_value(v)
+    else:
+        d = bisep.from_value(v)
+        assert (d.i, d.o) == (i, o)
