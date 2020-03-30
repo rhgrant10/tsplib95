@@ -11,10 +11,10 @@ from . import bisep  # noqa: F401
 from . import distances  # noqa: F401
 from . import exceptions  # noqa: F401
 from . import fields  # noqa: F401
+from . import loaders  # noqa: F401
 from . import matrix  # noqa: F401
 from . import models  # noqa: F401
 from . import transformers  # noqa: F401
-from . import loaders  # noqa: F401
 from . import utils  # noqa: F401
 
 parse = models.StandardProblem.parse
