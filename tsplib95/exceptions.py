@@ -9,9 +9,12 @@ class TsplibError(Exception):
         return cls(message, *exc.args[1:])
 
     def ammend(self, message):
-        new_message = f'{message}: {self.args[0]}'
-        new_args = [new_message] + list(self.args[1:])
-        self.args = tuple(new_args)
+        if self.args:
+            new_message = f'{message}: {self.args[0]}'
+            new_args = [new_message] + list(self.args[1:])
+            self.args = tuple(new_args)
+        else:
+            self.args = (message,)
         return self  # for easy raise syntax
 
 
