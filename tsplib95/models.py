@@ -95,15 +95,24 @@ class Problem(metaclass=FileMeta):
         return self.render()
 
     def __getattribute__(self, name):
+        # check for a value like normal
         try:
-            return object.__getattribute__(self, '__dict__')[name]
+            attrs = object.__getattribute__(self, '__dict__')
+            return attrs[name]
         except KeyError:
             pass
+
+        # value missing, so try to return the default
+        # for the correpsonding field
         try:
             cls = object.__getattribute__(self, '__class__')
-            return cls.fields_by_name[name].get_default_value()
+            field = cls.fields_by_name[name]
+            return field.get_default_value()
         except KeyError:
-            return super().__getattribute__(name)
+            pass
+
+        # not a field, so punt to the super implementation
+        return super().__getattribute__(name)
 
     def render(self):
         # render each value by keyword
