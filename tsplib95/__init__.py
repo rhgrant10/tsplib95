@@ -14,6 +14,9 @@ from . import fields  # noqa: F401
 from . import matrix  # noqa: F401
 from . import models  # noqa: F401
 from . import transformers  # noqa: F401
+from . import loaders  # noqa: F401
 from . import utils  # noqa: F401
 
 parse = models.StandardProblem.parse
+load_problem = loaders.load_problem
+load_problem_fromstring = loaders.load_problem_fromstring

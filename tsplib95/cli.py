@@ -3,7 +3,7 @@
 """Console script for tsplib95."""
 import click
 
-from . import utils
+from . import loaders
 from . import exceptions
 
 
@@ -15,7 +15,7 @@ def load(filepaths):
         s = m - len(filepath)
         click.echo(f'\rLoading {filepath}{"…":<{s}}', nl=False)
         try:
-            file = utils.load_problem(filepath)
+            file = loaders.load_problem(filepath)
         except exceptions.ParsingError as e:
             click.secho(f'ERROR: {e}', fg='red')
         else:
