@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import collections
 import itertools
 import re
 
@@ -11,32 +12,54 @@ from . import utils
 
 
 class FileMeta(type):
-    def __new__(cls, name, bases, data):
+    def __new__(mcs, name, bases, attrs):
         # we need to map the fields by keyword and by field name
         # data is a dictionary of class attributes, some of which are fields
         # we need to pop the fields out and use them to create two maps
         # one by keyword and one by field name
-        fields_by_name = {}
-        fields_by_keyword = {}
-        names_by_keyword = {}
-        keywords_by_name = {}
-        for name in list(data):
-            if isinstance(data[name], F.Field):
-                field = data.pop(name)
-                fields_by_name[name] = field
-                fields_by_keyword[field.keyword] = field
-                names_by_keyword[field.keyword] = name
-                keywords_by_name[name] = field.keyword
-        data['fields_by_name'] = fields_by_name
-        data['fields_by_keyword'] = fields_by_keyword
-        data['names_by_keyword'] = names_by_keyword
-        data['keywords_by_name'] = keywords_by_name
-        return super().__new__(cls, name, bases, data)
+
+        # first, we build the data for the current class
+        current = {
+            'fields_by_name': {},
+            'fields_by_keyword': {},
+            'names_by_keyword': {},
+            'keywords_by_name': {},
+        }
+        for name, value in list(attrs.items()):
+            if isinstance(value, F.Field):
+                current['fields_by_name'][name] = value
+                current['fields_by_keyword'][value.keyword] = value
+                current['names_by_keyword'][value.keyword] = name
+                current['keywords_by_name'][name] = value.keyword
+                attrs.pop(name)
+
+        # use the data to build a new class
+        attrs.update(current)
+        new_class = super().__new__(mcs, name, bases, attrs)
+
+        for key in current:
+            # merge together the data from all classes in the class
+            # hierarchy by traversing them in reverse MRO order.
+            data = {}
+            for base in reversed(new_class.__mro__):
+                if hasattr(base, key):
+                    data.update(getattr(base, key))
+
+                # be sure to take care of attribute hiding
+                for name, value in base.__dict__.items():
+                    if value is None and name in data:
+                        data.pop(name)
+
+            # set the final value on the new class
+            setattr(new_class, key, data)
+
+        return new_class
 
 
 class Problem(metaclass=FileMeta):
 
     def __init__(self, special=None, **data):
+        super().__init__()
         # every keyword argument becomes an attribute
         for name, value in data.items():
             setattr(self, name, value)
