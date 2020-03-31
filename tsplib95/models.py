@@ -131,6 +131,9 @@ class Problem(metaclass=FileMeta):
         # join and return the result
         return '\n'.join(kvpairs)
 
+    def validate(self):
+        pass
+
 
 class StandardProblem(Problem):
     name = F.StringField('NAME')
