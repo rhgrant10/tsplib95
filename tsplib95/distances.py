@@ -74,7 +74,7 @@ def geographical(start, end, round=utils.nint, radius=6378.388):
     q3 = math.cos(start.lat + end.lat)
     distance = radius * math.acos(0.5 * ((1 + q1) * q2 - (1 - q1) * q3)) + 1
 
-    return round(distance)
+    return int(distance)
 
 
 def pseudo_euclidean(start, end, round=utils.nint):
@@ -127,8 +127,8 @@ TYPES = {
     'MAN_2D': manhattan,
     'MAN_3D': manhattan,
     'CEIL_2D': functools.partial(euclidean, round=math.ceil),
-    'GEO': euclidean,
-    'ATT': euclidean,
+    'GEO': geographical,
+    'ATT': pseudo_euclidean,
     'XRAY1': xray,
     'XRAY2': functools.partial(xray, sx=1.25, sy=1.5, sz=1.15),
 }

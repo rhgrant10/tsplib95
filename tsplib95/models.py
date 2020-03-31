@@ -254,6 +254,10 @@ class StandardProblem(Problem):
             solutions.append(weight)
         return solutions
 
+    def trace_canonical_tour(self):
+        canonical_edges = utils.pairwise(self.get_nodes())
+        return sum(self.wfunc(i, j) for i, j in canonical_edges)
+
     def get_nodes(self):
         """Return an iterator over the nodes.
 

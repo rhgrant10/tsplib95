@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
+from tsplib95 import models
 from tsplib95 import distances
 
 
@@ -56,7 +57,7 @@ def test_maximum(start, end, dist, exc):
     ((3, 4), (3, 4), 1, None),
     ((0, 0), (3, 4), 557, None),
     ((3, 4), (0, 0), 557, None),
-    ((-3, -4), (3, 4), 1218, None),
+    ((-3, -4), (3, 4), 1113, None),
     ((0, 1), (0, 1, 2), None, ValueError),
     ((0, 1, 2), (0, 1), None, ValueError),
 ])
@@ -66,3 +67,14 @@ def test_geographical(start, end, dist, exc):
             distances.geographical(start, end)
     else:
         assert distances.geographical(start, end) == dist
+
+
+@pytest.mark.parametrize('pfile,answer', [
+    ('data/pcb442.tsp', 221440),
+    ('data/gr666.tsp', 423710),
+    ('data/att532.tsp', 309636),
+])
+def test_verifcation_problems(read_problem_text, pfile, answer):
+    problem_text = read_problem_text(pfile)
+    problem = models.StandardProblem.parse(problem_text)
+    assert problem.trace_canonical_tour() == answer

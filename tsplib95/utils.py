@@ -9,7 +9,7 @@ def parse_degrees(coord):
     :return: real degrees
     :rtype: float
     """
-    degrees = nint(coord)
+    degrees = int(coord)
     minutes = coord - degrees
     return degrees + minutes * 5 / 3
 
@@ -58,9 +58,14 @@ def integer_sum(n, m=None):
 
 
 def pairwise(indexes):
+    # double list double in case indexes is an iterator
     starts = list(indexes)
-    ends = list(indexes)
+    ends = list(starts)
+
+    # shift the ends by one, and make it circular
     ends += [ends.pop(0)]
+
+    # pair up the neighbors
     return zip(starts, ends)
 
 
