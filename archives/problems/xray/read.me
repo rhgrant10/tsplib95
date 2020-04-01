@@ -1,0 +1,139 @@
+**********
+read.me
+**********
+  
+This disk contains 4 files, containing information on the x-ray crystallography
+travelling salesman problem. A small amount of initial problem data is
+converted to coordinates for each node.1 Costs on edges are computed from these
+coordinates.
+
+
+     READ.ME   this file
+     DAUX.F    three routines:
+               1) setpts: converts crystal parameters to a list of angle data,
+                          calling "angles"
+               2) tcost: just computes cost of a tour stored in a particular
+                         way, using angle data, calling "cost"
+               3) angles: computes the angle settings for a particular
+                          diffraction spot.
+     DEQ.F     computes delay time between points using equal motor speed
+     DUNEQ.F   the same for an arbitrary set of different motor speeds
+
+
+Below are some sample problem data.1 The orientation matrices depend on the
+identity of the crystal and upon the exact placement of the crystal in the
+diffractometer.1 The wavelengths I have here were arbitrary within about a
+factor of 5.1 These were chosen to give useful problem sizes.1 The range of
+miller indices here are chosen so that any diffraction spot obtainable at the
+wavelength will be included,  hence many of the values in the range will not
+be observable.1 Other, smaller ranges may be of interest.
+
+a: ammonium tartrate
+   orientation matrix:
+  0.000611 -0.097614  0.058167
+ -0.000096 -0.082140 -0.069231
+  0.130702  0.000412 -0.000336
+  wavelength 1.35 (angstroms)
+  h -11:11 k -11:11 l -16:16
+
+b: biphenyl
+  orientation matrix:
+  0.071768  0.030788  0.090134
+  0.052640  0.108354 -0.048502
+ -0.154363  0.051269  0.025556
+  wavelength 1.00
+  h -11:11 k -16:16 l -19:19
+
+d: dinitrodiphenyltetrathiofulvalene
+  orientation matrix:
+  0.110766  0.011892  0.011527
+  0.069513  0.006824  0.104504
+  0.001230 -0.090351  0.000203
+  wavelength 1.35
+  h -14:14 k -16:16 l -17:17
+
+e: bis-2-imidazole iron (octaethylporphyrin)
+  orientation matrix
+  0.113037 -0.038699 -0.034727
+ -0.006078 -0.092717  0.085398
+ -0.074150 -0.093327 -0.102470
+  wavelength 1.00
+  h -15:15 k -14:14 l -14:14
+
+f: iron dipyridyltetraphenylporphyrin
+  orientation matrix
+  0.056862 -0.108080  0.034004
+  0.030175 -0.004372 -0.084995
+  0.103571  0.004387 -0.002003
+  wavelength 1.35
+  h -14:14 k -16:16 l -17:17
+
+
+    n
+a  9070
+b 14464
+d 14012
+e 13590
+f 13804
+
+
+*********************************************************************
+C     A COLLECTION OF COMMON ROUTINES, MOSTLY FOR SETUP OF THE          DAU00010
+C     TRAVELLING SALESMAN PROBLEM.                                      DAU00020
+C     DOUBLE PRECISION VERSION                                          DAU00030
+C                                                                       DAU00040
+C  SETPTS:  COMPUTE COORDINATES OF VERTICES                             DAU00050
+C                                                                       DAU00060
+C  THIS ROUTINE TAKES AS ARGUMENTS THE PARAMETERS OF THE CRYSTAL        DAU00070
+C  AND THE DESIRED RANGES OF MILLER INDICES AND COMPUTES THE COORDINATESDAU00080
+C  OF THE DETECTOR CORRESPONDING TO THE DESIRED REFLECTIONS.            DAU00090
+C                                                                       DAU00100
+C  INPUT PARAMETERS:                                                    DAU00110
+C     ORIENT  MATRIX OF VECTORS DEFINING RECIPROCAL LATTICE             DAU00120
+C     LAMBDA  WAVELENGTH OF X-RAY BEAM IN INVERSE ANGSTROMS             DAU00130
+C     HLO, HHI, KLO, KHI, LLO, LHI  RANGES OF MILLER INDICES H, K, L    DAU00140
+C                                                                       DAU00150
+C  OUTPUT:                                                              DAU00160
+C     NO PARAMETERS ARE CHANGED.  IN COMMON /POINTS/, N IS SET TO THE   DAU00170
+C     NUMBER OF POINTS TO WHICH IT IS POSSIBLE TO MOVE THE DETECTOR,    DAU00180
+C     AND THE COORDINATES OF THOSE POINTS ARE PLACED IN PHI, CHI,       DAU00190
+C     AND TWOTH.                                                        DAU00200
+C                                                                       DAU00210
+      SUBROUTINE SETPTS (ORIENT, LAMBDA, HLO, HHI, KLO, KHI, LLO, LHI)  DAU00220
+C                                                                       DAU00230
+****************************************************************************
+***************************************************************************
+C  TCOST:  RETURN THE TOTAL COST OF A TOUR                              DAU00970
+C                                                                       DAU00980
+C  INPUT:                                                               DAU00990
+C      TOUR    TOUR(V) IS THE VERTEX FOLLOWING V IN THE TOUR.           DAU01000
+C              THE POINTS ARE IN COMMON /POINTS/ AS DESCRIBED IN SETPTS.DAU01010
+C                                                                       DAU01020
+      DOUBLE PRECISION FUNCTION TCOST (TOUR)                            DAU01030
+C                                                                       DAU01040
+*********************************************************************   DAU01410
+********************************************************************    DAU01420
+C  ANGLES:  GIVEN MILLER INDICES OF A REFLECTION,                       DAU01430
+C           COMPUTE POSITIONING INFORMATION FOR                         DAU01440
+C           THE DETECTOR.                                               DAU01450
+C                                                                       DAU01460
+C  FROM MATT SMALL, APRIL 5, 1984.                                      DAU01470
+C                                                                       DAU01480
+C  INPUT PARAMETERS:                                                    DAU01490
+C      IH, K, L    MILLER INDICES                                       DAU01500
+C      ORIENT      3 BY 3 MATRIX OF VECTORS DEFINING THE RECIPROCAL     DAU01510
+C                  LATTICE                                              DAU01520
+C      LAMBDA      WAVELENGTH OF X-RAY BEAM (IN INVERSE ANGSTROMS)      DAU01530
+C      OMEGA       'MUST BE KEPT AT 0.0' - FINN NIELSEN                 DAU01540
+C                                                                       DAU01550
+C  OUTPUT PARAMETERS:                                                   DAU01560
+C      FI, KHI, TWOT  CALCULATED ANGLES PHI, CHI, AND TWO*THETA         DAU01570
+C      POSIBL         FALSE IF IT IS IMPOSSIBLE TO MOVE                 DAU01580
+C                     TO THE REFLECTION.                                DAU01590
+C                                                                       DAU01600
+C                                                                       DAU01610
+      SUBROUTINE ANGLES (IH, K, L, ORIENT, LAMBDA, OMEGA,               DAU01620
+     $                   FI, KHI, TWOT, POSIBL)                         DAU01630
+******************************************************************
+
+                         david shallcross
