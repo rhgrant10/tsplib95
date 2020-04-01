@@ -73,8 +73,8 @@ def test_geographical(start, end, dist, exc):
     ('data/pcb442.tsp', 221440),
     ('data/gr666.tsp', 423710),
     ('data/att532.tsp', 309636),
-    ('data/xray14012_1.tsp', 15429419),  # 15429219
-    ('data/xray14012_2.tsp', 12943295),  # 12943294
+    ('data/xray14012_1.tsp', 15429419),  # 15429219 in the spec
+    ('data/xray14012_2.tsp', 12943295),  # 12943294 in the spec
 ])
 def test_verifcation_problems(read_problem_text, pfile, answer):
     problem_text = read_problem_text(pfile)
