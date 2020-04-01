@@ -98,7 +98,7 @@ def pseudo_euclidean(start, end, round=utils.nint):
     return distance
 
 
-def xray(start, end, sx=1, sy=1, sz=1, round=utils.icost):
+def xray(start, end, sx=1.0, sy=1.0, sz=1.0, round=utils.nint):
     """Return x-ray crystallography distance.
 
     :param tuple start: 3-dimensional coordinate
@@ -111,12 +111,13 @@ def xray(start, end, sx=1, sy=1, sz=1, round=utils.icost):
     if len(start) != len(end) or len(start) != 3:
         raise ValueError('start and end but be 3-dimensional')
 
-    dx = min(abs(start[0] - end[0]), abs(abs(start[0] - end[0])) - 360)
+    dx = abs(start[0] - end[0])
+    dx = min(dx, abs(dx - 360))
     dy = abs(start[1] - end[1])
     dz = abs(start[2] - end[2])
-    distance = max(dx / sx, dy / sy, dz / sz)
 
-    return round(distance)
+    distance = max(dx / sx, dy / sy, dz / sz)
+    return round(100.0 * distance)
 
 
 TYPES = {
