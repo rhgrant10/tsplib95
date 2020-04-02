@@ -21,6 +21,6 @@ def test_exception_wrap(initial, msg, final):
     (tuple(), 'bar', ('bar',)),
     ((None, 'baz'), 'bar', ('bar', 'baz')),
 ])
-def test_exception_wrap(initial, msg, final):
+def test_exception_amend(initial, msg, final):
     e = exceptions.TsplibError(*initial).amend(msg)
     assert e.args == final
