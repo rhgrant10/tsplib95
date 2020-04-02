@@ -196,7 +196,7 @@ class ToursField(Field):
         super().__init__(*args)
         self.terminal = '-1'
         self.require_terminal = require_terminal
-        self._last_terminal = re.compile(rf'(?:\s+|\b){self.terminal}$')
+        self._end_terminals = re.compile(rf'(?:(?:\s+|\b|^){self.terminal})+$')
         self._any_terminal = re.compile(rf'(?:\s+|\b){self.terminal}(?:\b|\s+)')  # noqa: E501
 
     def parse(self, text):
@@ -204,21 +204,20 @@ class ToursField(Field):
         if not text:
             return []
 
-        if self.require_terminal:
-            # make sure the terminal terminated
-            match = self._last_terminal.search(text)
-            if not match:
-                terminal = text.split()[-1]
-                error = (f'must terminate in "{self.terminal}", '
-                         f'not {repr(terminal)}')
-                raise exceptions.ParsingError(error)
+        match = self._end_terminals.search(text)
+        # terminal must terminate, if required
+        if not match and self.require_terminal:
+            terminal = text.split()[-1]
+            error = (f'must terminate in "{self.terminal}", '
+                     f'not {repr(terminal)}')
+            raise exceptions.ParsingError(error)
 
-            # truncate the terminal
+        # trim the terminal if present
+        if match:
             text = text[:match.start()]
 
         # split the texts and filter out the empties
         texts = self._any_terminal.split(text)
-        texts = re.split(rf'(?:\s+|\b){self.terminal}(?:\b|\s+)', text)
         texts = list(filter(None, texts))
         if not texts:
             return []
@@ -237,6 +236,16 @@ class ToursField(Field):
         return tours
 
     def render(self, tours):
-        tour_strings = [' '.join(tour) for tour in tours]
-        tours_output = ' -1\n'.join(tour_strings)
-        return f'{tours_output}\n-1'
+        if not tours:
+            return ''
+
+        tour_strings = []
+        for tour in tours:
+            if tour:
+                tour_string = ' '.join(str(i) for i in tour)
+                tour_strings.append(f'{tour_string} -1')
+
+        if tour_strings:
+            tour_strings += ['-1']
+
+        return '\n'.join(tour_strings)
