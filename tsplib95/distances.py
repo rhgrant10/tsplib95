@@ -109,7 +109,7 @@ def xray(start, end, sx=1.0, sy=1.0, sz=1.0, round=utils.nint):
     :return: distance
     """
     if len(start) != len(end) or len(start) != 3:
-        raise ValueError('start and end but be 3-dimensional')
+        raise ValueError('start and end must be 3-dimensional')
 
     dx = abs(start[0] - end[0])
     dx = min(dx, abs(dx - 360))

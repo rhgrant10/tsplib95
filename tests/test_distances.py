@@ -69,6 +69,39 @@ def test_geographical(start, end, dist, exc):
         assert distances.geographical(start, end) == dist
 
 
+@pytest.mark.parametrize('start,end,dist,exc', [
+    ((3, 4), (3, 4), 0, None),
+    ((0, 0), (3, 4), 2, None),
+    ((3, 4), (0, 0), 2, None),
+    ((-3, -4), (3, 4), 4, None),
+    ((0, 1), (0, 1, 2), None, ValueError),
+    ((0, 1, 2), (0, 1), None, ValueError),
+])
+def test_pseudo_euclidean(start, end, dist, exc):
+    if exc:
+        with pytest.raises(exc):
+            distances.pseudo_euclidean(start, end)
+    else:
+        assert distances.pseudo_euclidean(start, end) == dist
+
+
+@pytest.mark.parametrize('start,end,dist,exc', [
+    ((3, 4, 0), (3, 4, 0), 0, None),
+    ((0, 0, 0), (3, 4, 0), 400, None),
+    ((3, 4, 0), (0, 0, 0), 400, None),
+    ((-3, -4, 0), (3, 4, 0), 800, None),
+    ((0,), (0,), None, ValueError),
+    ((0, 1), (0, 1), None, ValueError),
+    ((0, 1, 2, 3), (0, 1, 2, 3), None, ValueError),
+])
+def test_xray(start, end, dist, exc):
+    if exc:
+        with pytest.raises(exc):
+            distances.xray(start, end)
+    else:
+        assert distances.xray(start, end) == dist
+
+
 @pytest.mark.parametrize('pfile,answer', [
     ('data/pcb442.tsp', 221440),
     ('data/gr666.tsp', 423710),
