@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 
 from tsplib95 import transformers as T
-from tsplib95 import exceptions
+from tsplib95 import exceptions as E
 
 
 @pytest.fixture
@@ -36,19 +36,19 @@ def test_container_tf_parse(container_tf, kwargs, correct):
 ])
 def test_container_tf_parse_wrong_size(container_tf, text):
     tf = container_tf(size=3)
-    with pytest.raises(exceptions.ParsingError):
+    with pytest.raises(E.ParsingError):
         tf.parse(text)
 
 
 def test_container_tf_parse_no_terminal(container_tf):
     tf = container_tf(terminal='-1')
-    with pytest.raises(exceptions.ParsingError):
+    with pytest.raises(E.ParsingError):
         tf.parse('a b')
 
 
 def test_container_tf_parse_middle_terminal(container_tf):
     tf = container_tf(terminal='-1')
-    with pytest.raises(exceptions.ParsingError):
+    with pytest.raises(E.ParsingError):
         tf.parse('a -1 b -1')
 
 
@@ -88,3 +88,24 @@ def test_container_tf_join_items(container_tf):
     tf = container_tf()
     tf.sep.join = mock.Mock()
     assert tf.join_items('foo') == tf.sep.join.return_value
+
+
+def test_container_tf_split_items_error(container_tf):
+    tf = container_tf()
+    tf.split_items = mock.Mock(side_effect=Exception())
+    with pytest.raises(E.ParsingError):
+        tf.parse('foo')
+
+
+def test_container_tf_parse_item_error(container_tf):
+    tf = container_tf()
+    tf.parse_item = mock.Mock(side_effect=Exception())
+    with pytest.raises(E.ParsingError):
+        tf.parse('foo')
+
+
+@pytest.mark.parametrize('attr', ['pack', 'unpack'])
+def test_container_tf_needs_implementation(attr):
+    tf = T.ContainerT()
+    with pytest.raises(NotImplementedError):
+        getattr(tf, attr)(object())

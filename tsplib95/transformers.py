@@ -213,7 +213,7 @@ class UnionT(Transformer):
                 return tf.render(value)
             except Exception as e:
                 errors.append(f'{tf.__class__.__qualname__}=>{repr(e)}')
-        raise exceptions.ParsingError('no transformer in the union could '
-                                      'render the value, resulting in the '
-                                      'following errors: '
-                                      f'{utils.friendly_join(errors)}')
+        raise exceptions.RenderingError('no transformer in the union could '
+                                        'render the value, resulting in the '
+                                        'following errors: '
+                                        f'{utils.friendly_join(errors)}')
