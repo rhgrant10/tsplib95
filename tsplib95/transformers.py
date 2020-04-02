@@ -62,8 +62,8 @@ class ContainerT(Transformer):
         try:
             texts = self.split_items(text)
         except Exception as e:
-            message = 'could not split the text'
-            raise exceptions.ParsingError.ammend(e, message)
+            context = 'could not split the text'
+            raise exceptions.ParsingError.wrap(e, context)
 
         # filter out the empties, or don't; it's configurable
         if self.filter_empty:

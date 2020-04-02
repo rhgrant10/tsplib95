@@ -5,17 +5,12 @@ class TsplibError(Exception):
 
     @classmethod
     def wrap(cls, exc, message):
-        message = f'{message}: {exc.args[0]}'
+        if exc.args and exc.args[0]:
+            message = f'{message}: {exc.args[0]}'
         return cls(message, *exc.args[1:])
 
-    def ammend(self, message):
-        if self.args:
-            new_message = f'{message}: {self.args[0]}'
-            new_args = [new_message] + list(self.args[1:])
-            self.args = tuple(new_args)
-        else:
-            self.args = (message,)
-        return self  # for easy raise syntax
+    def amend(self, message):
+        return self.__class__.wrap(self, message)
 
 
 class ValidationError(TsplibError):

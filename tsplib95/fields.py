@@ -52,14 +52,14 @@ class TransformerField(Field):
             return self.tf.parse(text)
         except exceptions.ParsingError as e:
             context = f'{self.__class__.__qualname__}({self.keyword})'
-            raise e.ammend(context)
+            raise exceptions.ParsingError.wrap(e, context)
 
     def render(self, value):
         try:
             return self.tf.render(value)
         except exceptions.RenderingError as e:
             context = f'{self.__class__.__qualname__}({self.keyword})'
-            raise e.ammend(context)
+            raise exceptions.RenderingError.wrap(e, context)
 
     def validate(self, value):
         return self.tf.validate(value)
