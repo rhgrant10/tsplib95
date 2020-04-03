@@ -92,30 +92,35 @@ def test_is_symmetric(create_special_problem, typ, fmt, special, correct):
     assert problem.is_symmetric() is correct
 
 
-# @pytest.mark.parametrize('problem,correct', [
-#     (create_special_problem(display_data=None, display_data_type=None, node_coords=True), True),  # noqa: E501
-#     (create_special_problem(display_data=None, display_data_type=None, node_coords=None), False),  # noqa: E501
-#     (create_special_problem(display_data=None, display_data_type='NO_DISPLAY', node_coords=True), False),  # noqa: E501
-#     (create_special_problem(display_data=None, display_data_type='NO_DISPLAY', node_coords=None), False),  # noqa: E501
-#     (create_special_problem(display_data=True, display_data_type=None, node_coords=True), True),  # noqa: E501
-#     (create_special_problem(display_data=True, display_data_type=None, node_coords=None), True),  # noqa: E501
-#     (create_special_problem(display_data=True, display_data_type='NO_DISPLAY', node_coords=True), True),  # noqa: E501
-#     (create_special_problem(display_data=True, display_data_type='NO_DISPLAY', node_coords=None), True),  # noqa: E501
-#     (create_special_problem(), False)
-# ])
-# def test_is_depictable(problem, correct):
-#     assert problem.is_depictable() is correct
+@pytest.mark.parametrize('dat,typ,nc,correct', [
+    (None, None, True, True),
+    (None, None, None, False),
+    (None, 'NO_DISPLAY', True, False),
+    (None, 'NO_DISPLAY', None, False),
+    (True, None, True, True),
+    (True, None, None, True),
+    (True, 'NO_DISPLAY', True, True),
+    (True, 'NO_DISPLAY', None, True),
+    (None, None, None, False)
+])
+def test_is_depictable(create_special_problem, dat, typ, nc, correct):
+    problem = create_special_problem(display_data=dat,
+                                     display_data_type=typ,
+                                     node_coords=nc)
+    assert problem.is_depictable() is correct
 
 
-# @pytest.mark.parametrize('problem,correct', [
-#     (create_special_problem(is_depictable=mock.Mock(return_value=True), display_data=['foo']), 'foo'),  # noqa: E501
-#     (create_special_problem(is_depictable=mock.Mock(return_value=True), node_coords=['bar']), 'bar'),  # noqa: E501
-#     (create_special_problem(is_depictable=mock.Mock(return_value=True), display_data=['foo'], node_coords=['bar']), 'foo'),  # noqa: E501
-#     (create_special_problem(is_depictable=mock.Mock(return_value=False), display_data=['foo'], node_coords=['bar']), None),  # noqa: E501
-#     (create_special_problem(), None),
-# ])
-# def test_get_display(problem, correct):
-#     assert problem.get_display(0) is correct
+@pytest.mark.parametrize('idp,kw,correct', [
+    (True, {'display_data': ['foo']}, 'foo'),
+    (True, {'node_coords': ['bar']}, 'bar'),
+    (True, {'display_data': ['foo'], 'node_coords': ['bar']}, 'foo'),
+    (False, {'display_data': ['foo'], 'node_coords': ['bar']}, None),
+    (None, {}, None),
+])
+def test_get_display(create_special_problem, idp, kw, correct):
+    kwargs = {'is_depictable': mock.Mock(return_value=idp), **kw}
+    problem = create_special_problem(**kwargs)
+    assert problem.get_display(0) is correct
 
 
 @pytest.mark.parametrize('node_coords,normalize,correct', [

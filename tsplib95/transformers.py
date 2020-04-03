@@ -23,7 +23,10 @@ class FuncT(Transformer):
         self.func = func
 
     def parse(self, text):
-        return self.func(text)
+        try:
+            return self.func(text)
+        except Exception as e:
+            raise exceptions.ParsingError.wrap(e, 'func transformer error')
 
 
 class NumberT(Transformer):
