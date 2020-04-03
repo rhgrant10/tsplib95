@@ -186,7 +186,7 @@ class DemandsField(TransformerField):
     def build_transformer(cls):
         node = T.FuncT(func=int)
         demand = T.FuncT(func=int)
-        return T.MapT(key=node, value=demand, terminal='-1', sep='\n')
+        return T.MapT(key=node, value=demand, sep='\n')
 
 
 class ToursField(Field):
