@@ -29,7 +29,7 @@ def create_special_problem():
     (None, None, False),
 ])
 def test_is_explicit(create_special_problem, typ, fmt, correct):
-    problem = create_special_problem(edge_weight_format=fmt, edge_weight_type=typ)
+    problem = create_special_problem(edge_weight_format=fmt, edge_weight_type=typ)  # noqa: E501
     assert problem.is_explicit() is correct
 
 
@@ -39,7 +39,7 @@ def test_is_explicit(create_special_problem, typ, fmt, correct):
     (None, None, False),
 ])
 def test_is_full_matrix(create_special_problem, typ, fmt, correct):
-    problem = create_special_problem(edge_weight_format=fmt, edge_weight_type=typ)
+    problem = create_special_problem(edge_weight_format=fmt, edge_weight_type=typ)  # noqa: E501
     assert problem.is_full_matrix() is correct
 
 
@@ -127,7 +127,7 @@ def test_get_display(create_special_problem, idp, kw, correct):
     ({2: (0, 0), 4: (0, 0)}, False, [2, 4]),
     ({2: (0, 0), 4: (0, 0)}, True, [0, 1]),
 ])
-def test_get_graph_node_normalization(create_special_problem, node_coords, normalize, correct):
+def test_get_graph_node_normalization(create_special_problem, node_coords, normalize, correct):  # noqa: E501
     problem = create_special_problem(node_coords=node_coords)
     graph = problem.get_graph(normalize=normalize)
     assert list(graph.nodes) == correct
