@@ -14,6 +14,7 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'Click>=6.0',
     'networkx~=2.1',
+    'tabulate~=0.8.7',
 ]
 
 setup_requirements = ['pytest-runner', ]

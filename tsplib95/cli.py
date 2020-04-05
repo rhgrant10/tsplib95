@@ -2,40 +2,37 @@
 
 """Console script for tsplib95."""
 import click
+from tabulate import tabulate
 
 from . import loaders
 from . import exceptions
 
 
 def load(filepaths):
-    m = max(len(path) for path in filepaths)
-
     files = {}
-    for filepath in filepaths:
-        s = m - len(filepath)
-        click.echo(f'\rLoading {filepath}{"…":<{s}}', nl=False)
-        try:
-            file = loaders.load_problem(filepath)
-        except exceptions.ParsingError as e:
-            click.secho(f'ERROR: {e}', fg='red')
-        else:
-            files[filepath] = file
-
-    # looks gnarly but really it's just erasing the last output line
-    click.echo(f'\r{" ":<{m + 9}}')
+    with click.progressbar(filepaths, label='Loading files',
+                           show_pos=True) as bar:
+        for filepath in bar:
+            try:
+                file = loaders.load_problem(filepath)
+            except exceptions.ParsingError as e:
+                error = f'\n{filepath}: {e}'
+                click.secho(error, fg='red')
+            else:
+                files[filepath] = file
 
     return files
 
 
 def print_information(files):
-    print('Type    Size    Name')
-    for type_, size, name in sorted(get_tabular_data(files)):
-        print(f'{type_:<4} {size:>7}\t{name}')
+    header = ['Type', 'Size', 'Name']
+    rows = sorted(get_tabular_data(files))
+    click.echo_via_pager(tabulate(rows, header))
 
 
 def get_tabular_data(files):
     for filepath, file in files.items():
-        yield file.type or '', file.dimension or -1, filepath or ''
+        yield file.type, file.dimension or -1, filepath
 
 
 @click.group()
