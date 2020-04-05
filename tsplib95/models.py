@@ -45,10 +45,25 @@ class FileMeta(type):
                 if hasattr(base, key):
                     data.update(getattr(base, key))
 
-                # be sure to take care of attribute hiding
-                for name, value in base.__dict__.items():
-                    if value is None and name in data:
-                        data.pop(name)
+                # Be sure to take care of attribute hiding. This
+                # feature allows subclasses to "remove" (hide) fields
+                # already defined by one of the parent classes.
+                for name, base_value in list(base.__dict__.items()):
+                    if base_value is None and name in data:
+                        value = data.pop(name)
+                        if isinstance(value, F.Field):
+                            work = {
+                                name: ['fields_by_name',
+                                       'keywords_by_name'],
+                                value.keyword: ['fields_by_keyword',
+                                                'names_by_keyword'],
+                            }
+                            for k2, keys in work.items():
+                                for k1 in keys:
+                                    try:
+                                        del data[k1][k2]
+                                    except KeyError:
+                                        pass  # TODO: logging
 
             # set the final value on the new class
             setattr(new_class, key, data)
