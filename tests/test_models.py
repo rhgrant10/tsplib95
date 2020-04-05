@@ -203,7 +203,7 @@ def test_get_nodes(create_problem, nc, dd, edf, ed, dim, nodes, exc):
 @pytest.mark.parametrize('nc,dd,edf,ed,dim,edges,exc', [
     ({}, {}, 'ADJ_LIST', {0: [1, 2]}, None, [(0, 1), (0, 2)], None),
     ({}, {}, 'EDGE_LIST', [(0, 1), (1, 2)], None, [(0, 1), (1, 2)], None),
-    ({}, {}, None, None, 3, [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)], None),
+    ({}, {}, None, None, 3, [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)], None),  # noqa: E501
 ])
 def test_get_edges(create_problem, nc, dd, edf, ed, dim, edges, exc):
     problem = create_problem(
@@ -227,7 +227,7 @@ def test_get_edges(create_problem, nc, dd, edf, ed, dim, edges, exc):
     ('SPECIAL', 'FUNCTION', None, Exception),
     ('GEO', 'FUNCTION', None, None),
 ])
-def test_special_weight_function_required(create_problem, typ, fmt, special, exc):
+def test_special_weight_function_required(create_problem, typ, fmt, special, exc):  # noqa: E501
     if exc:
         with pytest.raises(exc):
             create_problem(
@@ -241,7 +241,6 @@ def test_special_weight_function_required(create_problem, typ, fmt, special, exc
             edge_weight_format=fmt,
             special=special,
         ).wfunc
-
 
 
 @pytest.fixture
@@ -260,4 +259,7 @@ def test_trace_tours(create_problem, solution):
     problem = create_problem()
     problem.wfunc = lambda i, j: i + 10 * j
     results = problem.trace_tours(solution)
-    assert results == [10 + 21 + 32 + 3, 20 + 12 + 31 + 3]
+    assert results == [
+        10 + 21 + 32 + 3,
+        20 + 12 + 31 + 3,
+    ]
