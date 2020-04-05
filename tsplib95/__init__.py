@@ -17,6 +17,15 @@ from . import models  # noqa: F401
 from . import transformers  # noqa: F401
 from . import utils  # noqa: F401
 
+# text -> problem
 parse = models.StandardProblem.parse
-load_problem = loaders.load_problem
-load_problem_fromstring = loaders.load_problem_fromstring
+
+# filename -> problem
+load = models.StandardProblem.load
+
+# file object -> problem
+read = models.StandardProblem.read
+
+# legacy
+load_unknown = load_solution = load_problem = loaders.load_problem
+load_unknown_fromstring = load_solution_fromstring = load_problem_fromstring = loaders.load_problem_fromstring  # noqa: E501

@@ -105,6 +105,15 @@ class Problem(metaclass=FileMeta):
         # return as a model
         return cls(special=special, **data)
 
+    @classmethod
+    def load(cls, filename, special=None):
+        with open(filename) as f:
+            return cls.read(f, special=special)
+
+    @classmethod
+    def read(cls, fp, special=None):
+        return cls.parse(fp.read(), special=special)
+
     def __str__(self):
         return self.render()
 
@@ -144,6 +153,13 @@ class Problem(metaclass=FileMeta):
 
         # join and return the result
         return '\n'.join(kvpairs)
+
+    def save(self, filename):
+        with open(filename, 'w') as f:
+            self.write(f)
+
+    def write(self, fp):
+        fp.write(self.render())
 
     def validate(self):
         pass
