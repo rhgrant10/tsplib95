@@ -10,12 +10,8 @@ def SPECIAL(i, j):
     return 1
 
 
-def create_problem(**kwargs):
-    return models.StandardProblem(**kwargs)
-
-
 @pytest.fixture
-def create_special_problem():
+def create_problem():
     def create(**kwargs):
         kwargs.setdefault('dimension', 3)
         return models.StandardProblem(**kwargs)
@@ -28,8 +24,8 @@ def create_special_problem():
     ('EUC_2D', 'FUNCTION', False),
     (None, None, False),
 ])
-def test_is_explicit(create_special_problem, typ, fmt, correct):
-    problem = create_special_problem(edge_weight_format=fmt, edge_weight_type=typ)  # noqa: E501
+def test_is_explicit(create_problem, typ, fmt, correct):
+    problem = create_problem(edge_weight_format=fmt, edge_weight_type=typ)  # noqa: E501
     assert problem.is_explicit() is correct
 
 
@@ -38,8 +34,8 @@ def test_is_explicit(create_special_problem, typ, fmt, correct):
     ('EXPLICIT', 'UPPER_ROW', False),
     (None, None, False),
 ])
-def test_is_full_matrix(create_special_problem, typ, fmt, correct):
-    problem = create_special_problem(edge_weight_format=fmt, edge_weight_type=typ)  # noqa: E501
+def test_is_full_matrix(create_problem, typ, fmt, correct):
+    problem = create_problem(edge_weight_format=fmt, edge_weight_type=typ)  # noqa: E501
     assert problem.is_full_matrix() is correct
 
 
@@ -49,10 +45,10 @@ def test_is_full_matrix(create_special_problem, typ, fmt, correct):
     ('SPECIAL', 'FUNCTION', SPECIAL, True),
     (None, None, None, False),
 ])
-def test_is_weighted(create_special_problem, typ, fmt, special, correct):
-    problem = create_special_problem(edge_weight_format=fmt,
-                                     edge_weight_type=typ,
-                                     special=special)
+def test_is_weighted(create_problem, typ, fmt, special, correct):
+    problem = create_problem(edge_weight_format=fmt,
+                             edge_weight_type=typ,
+                             special=special)
     assert problem.is_weighted() is correct
 
 
@@ -61,10 +57,10 @@ def test_is_weighted(create_special_problem, typ, fmt, special, correct):
     ('GEO', 'FUNCTION', None, False),
     (None, None, None, False),
 ])
-def test_is_special(create_special_problem, typ, fmt, special, correct):
-    problem = create_special_problem(edge_weight_format=fmt,
-                                     edge_weight_type=typ,
-                                     special=special)
+def test_is_special(create_problem, typ, fmt, special, correct):
+    problem = create_problem(edge_weight_format=fmt,
+                             edge_weight_type=typ,
+                             special=special)
     assert problem.is_special() is correct
 
 
@@ -73,8 +69,8 @@ def test_is_special(create_special_problem, typ, fmt, special, correct):
     ('ADJ_LIST', False),
     (None, True),
 ])
-def test_is_complete(create_special_problem, fmt, correct):
-    problem = create_special_problem(edge_data_format=fmt)
+def test_is_complete(create_problem, fmt, correct):
+    problem = create_problem(edge_data_format=fmt)
     assert problem.is_complete() is correct
 
 
@@ -85,10 +81,10 @@ def test_is_complete(create_special_problem, fmt, correct):
     ('GEO', 'FUNCTION', None, True),
     (None, None, None, True),
 ])
-def test_is_symmetric(create_special_problem, typ, fmt, special, correct):
-    problem = create_special_problem(edge_weight_format=fmt,
-                                     edge_weight_type=typ,
-                                     special=special)
+def test_is_symmetric(create_problem, typ, fmt, special, correct):
+    problem = create_problem(edge_weight_format=fmt,
+                             edge_weight_type=typ,
+                             special=special)
     assert problem.is_symmetric() is correct
 
 
@@ -103,10 +99,10 @@ def test_is_symmetric(create_special_problem, typ, fmt, special, correct):
     (True, 'NO_DISPLAY', None, True),
     (None, None, None, False)
 ])
-def test_is_depictable(create_special_problem, dat, typ, nc, correct):
-    problem = create_special_problem(display_data=dat,
-                                     display_data_type=typ,
-                                     node_coords=nc)
+def test_is_depictable(create_problem, dat, typ, nc, correct):
+    problem = create_problem(display_data=dat,
+                             display_data_type=typ,
+                             node_coords=nc)
     assert problem.is_depictable() is correct
 
 
@@ -117,9 +113,9 @@ def test_is_depictable(create_special_problem, dat, typ, nc, correct):
     (False, {'display_data': ['foo'], 'node_coords': ['bar']}, None),
     (None, {}, None),
 ])
-def test_get_display(create_special_problem, idp, kw, correct):
+def test_get_display(create_problem, idp, kw, correct):
     kwargs = {'is_depictable': mock.Mock(return_value=idp), **kw}
-    problem = create_special_problem(**kwargs)
+    problem = create_problem(**kwargs)
     assert problem.get_display(0) is correct
 
 
@@ -127,15 +123,15 @@ def test_get_display(create_special_problem, idp, kw, correct):
     ({2: (0, 0), 4: (0, 0)}, False, [2, 4]),
     ({2: (0, 0), 4: (0, 0)}, True, [0, 1]),
 ])
-def test_get_graph_node_normalization(create_special_problem, node_coords, normalize, correct):  # noqa: E501
-    problem = create_special_problem(node_coords=node_coords)
+def test_get_graph_node_normalization(create_problem, node_coords, normalize, correct):  # noqa: E501
+    problem = create_problem(node_coords=node_coords)
     graph = problem.get_graph(normalize=normalize)
     assert list(graph.nodes) == correct
 
 
 @pytest.fixture
-def complete_problem(create_special_problem):
-    return create_special_problem(
+def complete_problem(create_problem):
+    return create_problem(
         name='foo',
         comment='bar',
         type='baz',
@@ -172,10 +168,96 @@ def test_get_node_metadata(complete_problem, n, metadata):
     assert G.nodes[n] == metadata
 
 
-@pytest.mark.parametrize('e,metadata', [
+@pytest.mark.parametrize('edge,metadata', [
     ((0, 1), {'weight': 1, 'is_fixed': False}),
     ((2, 0), {'weight': 1, 'is_fixed': True}),
 ])
-def test_get_edge_metadata(complete_problem, e, metadata):
+def test_get_edge_metadata(complete_problem, edge, metadata):
     G = complete_problem.get_graph()
-    assert G.edges[e] == metadata
+    assert G.edges[edge] == metadata
+
+
+@pytest.mark.parametrize('nc,dd,edf,ed,dim,nodes,exc', [
+    ({}, {}, None, None, None, None, ValueError),
+    ({0: [1, 1]}, {}, None, None, None, [0], None),
+    ({}, {0: [1, 1]}, None, None, None, [0], None),
+    ({}, {}, 'ADJ_LIST', {0: [1, 2]}, None, [0, 1, 2], None),
+    ({}, {}, 'EDGE_LIST', [(0, 1), (1, 2)], None, [0, 1, 2], None),
+    ({}, {}, None, None, 3, [0, 1, 2], None),
+])
+def test_get_nodes(create_problem, nc, dd, edf, ed, dim, nodes, exc):
+    problem = create_problem(
+        node_coords=nc,
+        display_data=dd,
+        edge_data_format=edf,
+        edge_data=ed,
+        dimension=dim,
+    )
+    if exc:
+        with pytest.raises(exc):
+            problem.get_nodes()
+    else:
+        assert list(problem.get_nodes()) == nodes
+
+
+@pytest.mark.parametrize('nc,dd,edf,ed,dim,edges,exc', [
+    ({}, {}, 'ADJ_LIST', {0: [1, 2]}, None, [(0, 1), (0, 2)], None),
+    ({}, {}, 'EDGE_LIST', [(0, 1), (1, 2)], None, [(0, 1), (1, 2)], None),
+    ({}, {}, None, None, 3, [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)], None),
+])
+def test_get_edges(create_problem, nc, dd, edf, ed, dim, edges, exc):
+    problem = create_problem(
+        node_coords=nc,
+        display_data=dd,
+        edge_data_format=edf,
+        edge_data=ed,
+        dimension=dim,
+    )
+    if exc:
+        with pytest.raises(exc):
+            problem.get_edges()
+    else:
+        assert sorted(problem.get_edges()) == sorted(edges)
+
+
+@pytest.mark.parametrize('typ,fmt,special,exc', [
+    ('EXPLICIT', 'FULL_MATRIX', None, None),
+    ('EXPLICIT', 'UPPER_ROW', None, None),
+    ('SPECIAL', 'FUNCTION', SPECIAL, None),
+    ('SPECIAL', 'FUNCTION', None, Exception),
+    ('GEO', 'FUNCTION', None, None),
+])
+def test_special_weight_function_required(create_problem, typ, fmt, special, exc):
+    if exc:
+        with pytest.raises(exc):
+            create_problem(
+                edge_weight_type=typ,
+                edge_weight_format=fmt,
+                special=special,
+            )
+    else:
+        create_problem(
+            edge_weight_type=typ,
+            edge_weight_format=fmt,
+            special=special,
+        ).wfunc
+
+
+
+@pytest.fixture
+def solution():
+    class Solution:
+        pass
+    solution = Solution()
+    setattr(solution, 'tours', [
+        [0, 1, 2, 3],
+        [0, 2, 1, 3],
+    ])
+    return solution
+
+
+def test_trace_tours(create_problem, solution):
+    problem = create_problem()
+    problem.wfunc = lambda i, j: i + 10 * j
+    results = problem.trace_tours(solution)
+    assert results == [10 + 21 + 32 + 3, 20 + 12 + 31 + 3]
