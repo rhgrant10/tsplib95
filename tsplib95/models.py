@@ -11,13 +11,13 @@ from . import utils
 
 
 class FileMeta(type):
-    def __new__(mcs, name, bases, attrs):
+    def __new__(mcs, class_name, bases, attrs):
         # we need to map the fields by keyword and by field name
         # data is a dictionary of class attributes, some of which are fields
         # we need to pop the fields out and use them to create two maps
         # one by keyword and one by field name
 
-        # first, we build the data for the current class
+        # first, we transform all Field attrs into these mappings
         current = {
             'fields_by_name': {},
             'fields_by_keyword': {},
@@ -31,10 +31,10 @@ class FileMeta(type):
                 current['names_by_keyword'][value.keyword] = name
                 current['keywords_by_name'][name] = value.keyword
                 attrs.pop(name)
+        attrs.update(current)
 
         # use the data to build a new class
-        attrs.update(current)
-        new_class = super().__new__(mcs, name, bases, attrs)
+        new_class = super().__new__(mcs, class_name, bases, attrs)
 
         for key in current:
             # merge together the data from all classes in the class
