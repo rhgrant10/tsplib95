@@ -24,15 +24,18 @@ def load(filepaths):
     return files
 
 
-def print_information(files):
-    header = ['Type', 'Size', 'Name']
-    rows = sorted(get_tabular_data(files))
-    click.echo_via_pager(tabulate(rows, header))
-
-
 def get_tabular_data(files):
+    header = ['Type', 'Size', 'Name']
+    rows = []
     for filepath, file in files.items():
-        yield file.type, file.dimension or -1, filepath
+        row = file.type, file.dimension or -1, filepath
+        rows.append(row)
+    return header, rows
+
+
+def print_information(files):
+    header, rows = get_tabular_data(files)
+    click.echo_via_pager(tabulate(sorted(rows), header))
 
 
 @click.group()
