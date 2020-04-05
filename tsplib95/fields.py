@@ -12,6 +12,9 @@ class Field:
         self.keyword = keyword
         self.default = default or self.__class__.default
 
+    def __repr__(self):
+        return f'<{self.__class__.__qualname__}({repr(self.keyword)})>'
+
     def get_default_value(self):
         if callable(self.default):
             return self.default()
