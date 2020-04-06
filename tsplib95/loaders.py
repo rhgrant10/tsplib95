@@ -2,7 +2,7 @@
 from . import models
 
 
-def load_problem(filepath, problem_class=None, special=None):
+def load(filepath, problem_class=None, special=None):
     """Load a problem at the given filepath.
 
     :param str filepath: path to a TSPLIB problem file
@@ -12,12 +12,22 @@ def load_problem(filepath, problem_class=None, special=None):
     :rtype: :class:`~Problem`
     """
     with open(filepath) as f:
-        problem_text = f.read()
-    return load_problem_fromstring(problem_text, special=special,
-                                   problem_class=problem_class)
+        return read(f, special=special, problem_class=problem_class)
 
 
-def load_problem_fromstring(text, problem_class=None, special=None):
+def read(f, problem_class=None, special=None):
+    """Read a problem from a file-like object.
+
+    :param file f: file-like object
+    :param type problem_class: special/custom problem class
+    :param callable special: special/custom distance function
+    :return: problem instance
+    :rtype: :class:`~Problem`
+    """
+    return parse(f.read(), special=special, problem_class=problem_class)
+
+
+def parse(text, problem_class=None, special=None):
     """Load a problem from raw text.
 
     :param str text: text of a TSPLIB problem

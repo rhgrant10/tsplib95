@@ -137,6 +137,20 @@ class Problem(metaclass=FileMeta):
         # not a field, so punt to the super implementation
         return super().__getattribute__(name)
 
+    def as_dict(self, by_keyword=False):
+        data = {}
+        for name, field in self.__class__.fields_by_name.items():
+            value = getattr(self, name)
+            key = field.keyword if by_keyword else name
+            data[key] = value
+        return data
+
+    def as_name_dict(self):
+        return self.as_dict(by_keyword=False)
+
+    def as_keyword_dict(self):
+        return self.as_dict(by_keyword=True)
+
     def render(self):
         # render each value by keyword
         rendered = {}
@@ -190,7 +204,11 @@ class StandardProblem(Problem):
 
     def __init__(self, special=None, **kwargs):
         super().__init__(**kwargs)
+
+        #: Return the weight of an edge
         self.wfunc = None
+
+        #: Special function
         self.special = special
 
     @property
