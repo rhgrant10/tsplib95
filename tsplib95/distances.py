@@ -5,8 +5,23 @@ import math
 from . import utils
 
 
+__all__ = [
+    'TYPES',
+    'euclidean',
+    'manhattan',
+    'maximum',
+    'geographical',
+    'pseudo_euclidean',
+    'xray',
+]
+
+
 def euclidean(start, end, round=utils.nint):
     """Return the Euclidean distance between start and end.
+
+    This is capable of performing distance calculations for EUC_2D and
+    EUC_3D problems. If ``round=math.ceil`` is passed, this is suitable for
+    CEIL_2D problems as well.
 
     :param tuple start: *n*-dimensional coordinate
     :param tuple end: *n*-dimensional coordinate
@@ -25,6 +40,9 @@ def euclidean(start, end, round=utils.nint):
 def manhattan(start, end, round=utils.nint):
     """Return the Manhattan distance between start and end.
 
+    This is capable of performing distance calculations for MAN_2D and
+    MAN_3D problems.
+
     :param tuple start: *n*-dimensional coordinate
     :param tuple end: *n*-dimensional coordinate
     :param callable round: function to use to round the result
@@ -41,6 +59,9 @@ def manhattan(start, end, round=utils.nint):
 def maximum(start, end, round=utils.nint):
     """Return the Maximum distance between start and end.
 
+    This is capable of performing distance calculations for MAX_2D and
+    MAX_3D problems.
+
     :param tuple start: *n*-dimensional coordinate
     :param tuple end: *n*-dimensional coordinate
     :param callable round: function to use to round the result
@@ -56,6 +77,8 @@ def maximum(start, end, round=utils.nint):
 
 def geographical(start, end, round=utils.nint, radius=6378.388):
     """Return the geographical distance between start and end.
+
+    This is capable of performing distance calculations for GEO problems.
 
     :param tuple start: *n*-dimensional coordinate
     :param tuple end: *n*-dimensional coordinate
@@ -80,6 +103,8 @@ def geographical(start, end, round=utils.nint, radius=6378.388):
 def pseudo_euclidean(start, end, round=utils.nint):
     """Return the pseudo-Euclidean distance between start and end.
 
+    This is capable of performing distance calculations for ATT problems.
+
     :param tuple start: *n*-dimensional coordinate
     :param tuple end: *n*-dimensional coordinate
     :param callable round: function to use to round the result
@@ -101,6 +126,11 @@ def pseudo_euclidean(start, end, round=utils.nint):
 def xray(start, end, sx=1.0, sy=1.0, sz=1.0, round=utils.nint):
     """Return x-ray crystallography distance.
 
+    This is capable of performing distance calculations for xray
+    crystallography problems. As is, it is suitable for XRAY1 problems.
+    However, using ``sx=1.25``, ``sy=1.5``, and ``sz=1.15`` makes it suitable
+    for XRAY2 problems.
+
     :param tuple start: 3-dimensional coordinate
     :param tuple end: 3-dimensional coordinate
     :param float sx: x motor speed
@@ -120,6 +150,7 @@ def xray(start, end, sx=1.0, sy=1.0, sz=1.0, round=utils.nint):
     return round(100.0 * distance)
 
 
+#: Map of distance function types to distance functions
 TYPES = {
     'EUC_2D': euclidean,
     'EUC_3D': euclidean,

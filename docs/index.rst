@@ -5,13 +5,13 @@ Welcome to TSPLIB 95's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   readme
-   installation
-   usage
-   modules
-   contributing
-   authors
-   history
+   pages/readme
+   pages/installation
+   pages/usage
+   pages/modules
+   pages/contributing
+   pages/authors
+   pages/history
 
 Indices and tables
 ==================

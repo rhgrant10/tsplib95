@@ -71,16 +71,31 @@ class FileMeta(type):
 
 
 class Problem(metaclass=FileMeta):
+    """Base class for all problems.
 
-    def __init__(self, special=None, **data):
+    :param data: name-value data
+    """
+
+    def __init__(self, **data):
         super().__init__()
         # every keyword argument becomes an attribute
         for name, value in data.items():
             setattr(self, name, value)
-        self._special = special
+        self._defaults = {}
 
     @classmethod
-    def parse(cls, text, special=None):
+    def parse(cls, text, **options):
+        """Parse text into a problem instance.
+
+        Any keyword options are passed to the class constructor. If a keyword
+        argument has the same name as a field then they will collide and cause
+        an error.
+
+        :param str text: problem text
+        :param options: any keyword arguments to pass to the constructor
+        :return: problem instance
+        :rtype: :class:`Problem`
+        """
         # prepare the regex for all known keys
         keywords = '|'.join(cls.fields_by_keyword)
         sep = r'''\s*:\s*|\s*\n'''
@@ -102,17 +117,39 @@ class Problem(metaclass=FileMeta):
                 name = cls.names_by_keyword[keyword]
                 data[name] = field.parse(value.strip())
 
-        # return as a model
-        return cls(special=special, **data)
+        # return as a model, letting options and field data potentially collide
+        return cls(**data, **options)
 
     @classmethod
-    def load(cls, filename, special=None):
-        with open(filename) as f:
-            return cls.read(f, special=special)
+    def load(cls, filepath, **options):
+        """Load a problem instance from a text file.
+
+        Any keyword options are passed to the class constructor. If a keyword
+        argument has the same name as a field then they will collide and cause
+        an error.
+
+        :param str filepath: path to a problem file
+        :param options: any keyword arguments to pass to the constructor
+        :return: problem instance
+        :rtype: :class:`Problem`
+        """
+        with open(filepath) as f:
+            return cls.read(f, **options)
 
     @classmethod
-    def read(cls, fp, special=None):
-        return cls.parse(fp.read(), special=special)
+    def read(cls, fp, **options):
+        """Read a problem instance from a file-like object.
+
+        Any keyword options are passed to the class constructor. If a keyword
+        argument has the same name as a field then they will collide and cause
+        an error.
+
+        :param str fp: a file-like object
+        :param options: any keyword arguments to pass to the constructor
+        :return: problem instance
+        :rtype: :class:`Problem`
+        """
+        return cls.parse(fp.read(), **options)
 
     def __str__(self):
         return self.render()
@@ -130,33 +167,61 @@ class Problem(metaclass=FileMeta):
         try:
             cls = object.__getattribute__(self, '__class__')
             field = cls.fields_by_name[name]
-            return field.get_default_value()
         except KeyError:
             pass
+        else:
+            # return a single default object
+            default = field.get_default_value()
+            if name in self._defaults and self._defaults[name] != default:
+                # if the default has been altered, set it as the value
+                setattr(self, name, self._defaults[name])
+            else:
+                # we don't have a default yet, save this one
+                self._defaults[name] = default
+            return self._defaults[name]
 
         # not a field, so punt to the super implementation
         return super().__getattribute__(name)
 
     def as_dict(self, by_keyword=False):
+        """Return the problem data as a dictionary.
+
+        :param bool by_keyword: use keywords (True) or names (False) or keys
+        :return: problem data
+        :rtype: dict
+        """
         data = {}
         for name, field in self.__class__.fields_by_name.items():
             value = getattr(self, name)
-            key = field.keyword if by_keyword else name
-            data[key] = value
+            if name in self.__dict__ or value != field.get_default_value():
+                key = field.keyword if by_keyword else name
+                data[key] = value
         return data
 
     def as_name_dict(self):
+        """Return the problem data as a dictionary by field name.
+
+        :return: problem data
+        :rtype: dict
+        """
         return self.as_dict(by_keyword=False)
 
     def as_keyword_dict(self):
+        """Return the problem data as a dictionary by field keyword.
+
+        :return: problem data
+        :rtype: dict
+        """
         return self.as_dict(by_keyword=True)
 
     def render(self):
         # render each value by keyword
-        rendered = {}
-        for name, field in self.__class__.fields_by_name.items():
-            if name in self.__dict__:  # has had a value set
-                rendered[field.keyword] = field.render(getattr(self, name))
+        rendered = self.as_name_dict()
+        for name in list(rendered):
+            value = rendered.pop(name)
+            field = self.__class__.fields_by_name[name]
+            if name in self.__dict__ or value != field.get_default_value():
+                rendered[field.keyword] = field.render(value)
 
         # build keyword-value pairs with the separator
         kvpairs = []
@@ -180,6 +245,38 @@ class Problem(metaclass=FileMeta):
 
 
 class StandardProblem(Problem):
+    """Standard problem as outlined in the original TSLIB95 documentation.
+
+    The available fields and their keywords are:
+
+     * ``name`` - NAME
+     * ``comment`` - COMMENT
+     * ``type`` - TYPE
+     * ``dimension`` - DIMENSION
+     * ``capacity`` - CAPACITY
+     * ``edge_weight_type`` - EDGE_WEIGHT_TYPE
+     * ``edge_weight_format`` - EDGE_WEIGHT_FORMAT
+     * ``edge_data_format`` - EDGE_DATA_FORMAT
+     * ``node_coord_type`` - NODE_COORD_TYPE
+     * ``display_data_type`` - DISPLAY_DATA_TYPE
+     * ``depots`` - DEPOT_SECTION
+     * ``demands`` - DEMAND_SECTION
+     * ``node_coords`` - NODE_COORD_SECTION
+     * ``edge_weights`` - EDGE_WEIGHT_SECTION
+     * ``display_data`` - DISPLAY_DATA_SECTION
+     * ``edge_data`` - EDGE_DATA_SECTION
+     * ``fixed_edges`` - FIXED_EDGES_SECTION
+     * ``tours`` - TOUR_SECTION
+
+    For SPECIAL FUNCTION problems, the special function must accept a start
+    and an end node and return the weight, distance, or cost of the edge that
+    joins them. It can be provided at construction time or simply set on an
+    existing object using the ``special`` attribute.
+
+    :param callable special: special function for distance
+    :param data: name-value data
+    """
+
     name = F.StringField('NAME')
     comment = F.StringField('COMMENT')
     type = F.StringField('TYPE')
@@ -202,82 +299,104 @@ class StandardProblem(Problem):
 
     tours = F.ToursField('TOUR_SECTION')
 
-    def __init__(self, special=None, **kwargs):
-        super().__init__(**kwargs)
-
-        #: Return the weight of an edge
-        self.wfunc = None
-
-        #: Special function
+    def __init__(self, special=None, **data):
+        super().__init__(**data)
+        self._wfunc = None
         self.special = special
 
     @property
     def special(self):
-        """Special distance function"""
+        """Special distance function.
+
+        Special/custom distance functions must accept two coordinates of
+        appropriate dimension and return the distance between them.
+        """
         return self._special
 
     @special.setter
     def special(self, func):
-        """Set the special distance function.
-
-        Special/custom distance functions must accept two coordinates of
-        appropriate dimension and return the distance between them.
-
-        Note that this has no effect if the problem defines weights explicitly.
-
-        :param callable func: custom distance function
-        """
         self._special = func
-        self.wfunc = self._create_wfunc(special=func)
+        self._wfunc = self._create_wfunc(special=func)
+
+    def get_weight(self, start, end):
+        """Return the weight of the edge between start and end.
+
+        This method provides a single way to obtain edge weights regardless of
+        whether the problem uses an explicit matrix or a distance function.
+
+        :param int start: starting node index
+        :param int end: ending node index
+        :return: weight of the edge between start and end
+        :rtype: float
+        """
+        return self._wfunc(start, end)
 
     def is_explicit(self):
-        """Return True if the problem specifies explicit edge weights.
+        """Check whether the problem specifies edge weights explicitly.
 
+        :return: True if the problem specifies edge weights explicitly
         :rtype: bool
         """
         return self.edge_weight_type == 'EXPLICIT'
 
     def is_full_matrix(self):
-        """Return True if the problem is specified as a full matrix.
+        """Check whether the problem is specified as a full matrix.
 
+        :return: True if the problem is specified as a full matrix
         :rtype: bool
         """
         return self.edge_weight_format == 'FULL_MATRIX'
 
     def is_weighted(self):
-        """Return True if the problem has weighted edges.
+        """Check whether the problem has weighted edges.
 
+        A problem is considered unweighted if neither the EDGE_WEIGHT_FORMAT
+        nor the EDGE_WEIGHT_TYPE are defined.
+
+        :return: True if the problem is weighted
         :rtype: bool
         """
         return bool(self.edge_weight_format) or bool(self.edge_weight_type)
 
     def is_special(self):
-        """Return True if the problem requires a special distance function.
+        """Check whether the problem is special.
 
+        SPECIAL problems require a special distance function.
+
+        :return: True if the problem requires a special distance function
         :rtype: bool
         """
         return self.edge_weight_type == 'SPECIAL'
 
     def is_complete(self):
-        """Return True if the problem specifies a complete graph.
+        """Check whether the problem specifies a complete graph.
 
+        :return: True if the problem specifies a complete graph
         :rtype: bool
         """
         return not bool(self.edge_data_format)
 
     def is_symmetric(self):
-        """Return True if the problem is not asymmetrical.
+        """Check whether the problem is symmetrical.
 
-        Note that even if this method returns False there is no guarantee that
-        there are any two nodes with an asymmetrical distance between them.
+        .. warning::
 
+            Although a result of ``True`` guarantees symmetry, a value of
+            ``False`` merely indicates the *possibliity* for asymmetry. Avoid
+            using ``not problem.is_symmetric()`` when possible.
+
+        :return: True if the problem is symmetrical
         :rtype: bool
         """
         return not self.is_full_matrix() and not self.is_special()
 
     def is_depictable(self):
-        """Return True if the problem is designed to be depicted.
+        """Check whether the problem can be depicted.
 
+        A problem is depictable if it has display data or has node coordinates
+        and does not specify NO_DISPLAY.
+
+        :return: True if the problem can be depicted
         :rtype: bool
         """
         if bool(self.display_data):
@@ -288,29 +407,52 @@ class StandardProblem(Problem):
 
         return bool(self.node_coords)
 
-    def trace_tours(self, solution):
-        """Calculate the total weights of the tours in the given solution.
+    def trace_tours(self, tours):
+        """Return the weights of the given tours.
 
-        :param solution: solution with tours to trace
-        :type solution: :class:`~Solution`
-        :return: one or more tour weights
+        Each tour is a list of node indices. The weights returned are the sum
+        of the individual weights of the edges in each tour including the final
+        edge back to the starting node.
+
+        The list of weights returned parallels the list of tours given so that
+        ``weights[i]`` corresponds to ``tours[i]``::
+
+            weights = p.trace_tours(tours)
+
+        :param list tours: one or more lists of node indices
+        :return: one weight for each given tour
         :rtype: list
         """
         solutions = []
-        for tour in solution.tours:
-            weight = sum(self.wfunc(i, j) for i, j in utils.pairwise(tour))
+        for tour in tours:
+            edges = utils.pairwise(tour)
+            weight = sum(self.get_weight(i, j) for i, j in edges)
             solutions.append(weight)
         return solutions
 
     def trace_canonical_tour(self):
-        canonical_edges = utils.pairwise(self.get_nodes())
-        return sum(self.wfunc(i, j) for i, j in canonical_edges)
+        """Return the weight of the canonical tour.
+
+        The "canonical tour" uses the nodes in order. This method is present
+        primarily for testing and purposes.
+
+        :return: weight of the canonical tour
+        :rtype: float
+        """
+        nodes = list(self.get_nodes())
+        return self.trace_tours([nodes])[0]
 
     def get_nodes(self):
         """Return an iterator over the nodes.
 
+        This method provides a single way to obtain the nodes of a problem
+        regardless of how it is specified. However, if the nodes are not
+        specified, the EDGE_DATA_FORMAT is not set, and DIMENSION has no value,
+        then nodes are undefined.
+
         :return: nodes
         :rtype: iter
+        :raises ValueError: if the nodes are undefined
         """
         if self.node_coords:
             return iter(self.node_coords)
@@ -338,8 +480,13 @@ class StandardProblem(Problem):
     def get_edges(self):
         """Return an iterator over the edges.
 
+        This method provides a single way to obtain the edges of a problem
+        regardless of how it is specified. If the EDGE_DATA_FORMAT is not set
+        and the nodes are undefined, then the edges are also undefined.
+
         :return: edges
         :rtype: iter
+        :raises ValueError: if the nodes and therefore the edges are undefined
         """
         if self.edge_data_format == 'EDGE_LIST':
             yield from self.edge_data
@@ -350,7 +497,9 @@ class StandardProblem(Problem):
             yield from itertools.product(self.get_nodes(), self.get_nodes())
 
     def get_display(self, i):
-        """Return the display data for node at index *i*, if available.
+        """Return the display data for node at index *i*.
+
+        If the problem is not depictable, None is returned instead.
 
         :param int i: node index
         :return: display data for node i
@@ -361,6 +510,7 @@ class StandardProblem(Problem):
             except (KeyError, TypeError):
                 return self.node_coords[i]
         else:
+            # TODO: raise an exception instead
             return None
 
     def get_graph(self, normalize=False):
@@ -372,6 +522,7 @@ class StandardProblem(Problem):
 
         .. code-block:: python
 
+            >>> G = problem.get_graph()
             >>> G.graph
             {'name': None,
              'comment': '14-Staedte in Burma (Zaw Win)',
@@ -386,7 +537,7 @@ class StandardProblem(Problem):
             >>> G.edges[1, 2]
             {'weight': 2, 'is_fixed': False}
 
-        If the graph is not symmetric then a :class:`networkx.DiGraph` is
+        If the graph is asymmetric then a :class:`networkx.DiGraph` is
         returned. Optionally, the nodes can be renamed to be sequential and
         zero-indexed.
 
@@ -421,7 +572,7 @@ class StandardProblem(Problem):
 
         # add every edge with some associated metadata
         for a, b in self.get_edges():
-            weight = self.wfunc(a, b)
+            weight = self.get_weight(a, b)
             is_fixed = (a, b) in self.fixed_edges
             G.add_edge(names[a], names[b], weight=weight, is_fixed=is_fixed)
 
@@ -429,20 +580,25 @@ class StandardProblem(Problem):
         return G
 
     def _create_wfunc(self, special=None):
-        # handle the differences between explicit and calculated problems
+        # explicit problems ignore the special function
         if self.is_explicit():
             matrix = self._create_explicit_matrix()
             return lambda i, j: matrix[i, j]
+
         if self.is_special():
+            # use the special weight function
             if special is None:
                 raise Exception('missing needed special weight function')
             wfunc = special
         elif self.is_weighted():
+            # use a predefined weight function
             wfunc = distances.TYPES[self.edge_weight_type]
         else:
-            return lambda i, j: 1  # unweighted graphs
+            # unweighted problems
+            return lambda i, j: 1
 
-        # wrap the distance function so that it takes node indexes, not coords
+        # Wrap whatever distance function we have so that it takes node
+        # indexes instead of directly taking coordinates.
         def adapter(i, j):
             return wfunc(self.node_coords[i], self.node_coords[j])
 

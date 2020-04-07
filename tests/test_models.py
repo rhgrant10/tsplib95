@@ -240,25 +240,21 @@ def test_special_weight_function_required(create_problem, typ, fmt, special, exc
             edge_weight_type=typ,
             edge_weight_format=fmt,
             special=special,
-        ).wfunc
+        )._wfunc
 
 
 @pytest.fixture
-def solution():
-    class Solution:
-        pass
-    solution = Solution()
-    setattr(solution, 'tours', [
+def tours():
+    return [
         [0, 1, 2, 3],
         [0, 2, 1, 3],
-    ])
-    return solution
+    ]
 
 
-def test_trace_tours(create_problem, solution):
+def test_trace_tours(create_problem, tours):
     problem = create_problem()
-    problem.wfunc = lambda i, j: i + 10 * j
-    results = problem.trace_tours(solution)
+    problem._wfunc = lambda i, j: i + 10 * j
+    results = problem.trace_tours(tours)
     assert results == [
         10 + 21 + 32 + 3,
         20 + 12 + 31 + 3,

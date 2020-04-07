@@ -1,7 +1,16 @@
 # -*- coding: utf-8 -*-
 
 
+__all__ = [
+    'TsplibError',
+    'ParsingError',
+    'RenderingError',
+    'ValidationError',
+]
+
+
 class TsplibError(Exception):
+    """Base exception for all tsplib95 errors."""
 
     @classmethod
     def wrap(cls, exc, message):
@@ -14,12 +23,12 @@ class TsplibError(Exception):
 
 
 class ValidationError(TsplibError):
-    pass
+    """Exception raised when a problem fails validation."""
 
 
 class ParsingError(TsplibError, ValueError):
-    pass
+    """Exception raised when a value cannot be parsed from the text."""
 
 
 class RenderingError(TsplibError, ValueError):
-    pass
+    """Exception raised when a value cannot be rendered into text."""
