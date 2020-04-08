@@ -259,3 +259,10 @@ def test_trace_tours(create_problem, tours):
         10 + 21 + 32 + 3,
         20 + 12 + 31 + 3,
     ]
+
+
+def test_explicit_half_matrix_graph(read_problem_text):
+    text = read_problem_text('data/gr17.tsp')
+    problem = models.StandardProblem.parse(text)
+    G = problem.get_graph()
+    assert list(G.nodes) == list(range(17))

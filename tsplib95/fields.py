@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import itertools
 import re
 
 from . import transformers as T

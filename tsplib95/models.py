@@ -608,4 +608,5 @@ class StandardProblem(Problem):
         # instantiate the right matrix class for the problem
         m = min(self.get_nodes())
         Matrix = matrix.TYPES[self.edge_weight_format]
-        return Matrix(self.edge_weights, self.dimension, min_index=m)
+        weights = list(itertools.chain(*self.edge_weights))
+        return Matrix(weights, self.dimension, min_index=m)
