@@ -38,7 +38,7 @@ Example
     'TSP'
     
     >>> # auto-generated weight function for any two nodes
-    >>> problem.wfunc(2, 6)
+    >>> problem.get_weight(2, 6)
     6977
 
     >>> # convert to networkx

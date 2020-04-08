@@ -145,8 +145,9 @@ and use the helper to calculate the driving distance.
     ...     return kilometers
     ...
 
-Now we can simply supply the :func:`tsplib95.load <tsplib95.loaders.load_problem>`
-method with our special function:
+Now we can simply supply the
+:func:`tsplib95.load <tsplib95.loaders.load_problem>` method with our special
+function:
 
 .. code-block:: python
 
@@ -154,8 +155,8 @@ method with our special function:
     >>> problem = tsplib95.load('my-hometown.tsp', special=driving_distance)
 
 As with any problem, we can find the weight of any edge using the
-:func:`~tsplib95.models.StandardProblem.wfunc` method. See the :ref:`distances-label`
-section for more details.
+:func:`~tsplib95.models.StandardProblem.get_weight` method. See the
+:ref:`distances-label` section for more details.
 
 .. note::
 
@@ -357,7 +358,7 @@ Distances
 
 Regardless of whether the problem is explicit or function, the distance between
 two nodes can always be found by passing their indicies to
-:func:`problem.wfunc() <tsplib95.models.Problem.wfunc>`.
+:func:`problem.get_weight() <tsplib95.models.Problem.get_weight>`.
 
 .. code-block:: python
 
@@ -371,7 +372,7 @@ two nodes can always be found by passing their indicies to
     >>> problem.edge_weight_type
     'EUC_2D'
     >>> edge = 3, 8
-    >>> weight = problem.wfunc(*edge)
+    >>> weight = problem.get_weight(*edge)
     >>> print(f'The driving distance from node {edge[0]} to node {edge[1]} is {weight}.')
     The distance between node 3 and node 8 is 19.
 
@@ -417,18 +418,27 @@ To trace a list of nodes as if it were a tour and obtain the total weight, use
 
 Note that it returns a list of tour distances, one for each tour given.
 
+For testing purposes, there is also
+:func:`tsplib95.models.StandardProblem.trace_canonical_tour`, which uses the
+nodes in definition order as a tour and returns the total weight::
+
+    >>> weight = problem.trace_canonical_tour()
+
 
 Converting problems
 ===================
 
-You can get a ``networkx.Graph`` instance from the problem:
-
-.. code-block:: python
+:func:`tsplib95.models.StandardProblem.get_graph` creates a ``networkx.Graph``
+instance from the problem data::
 
     >>> G = problem.get_graph()
     >>> G.nodes
     NodeView((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
 
+The graph contains as much information about the nodes and edges as is present
+in the problem instance::
+
+    >>> probelm.
 
 .. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
 .. _TSPLIB problem files: https://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp/
