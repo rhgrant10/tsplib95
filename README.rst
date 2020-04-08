@@ -16,8 +16,9 @@ TSPLIB 95
         :alt: Code Coverage
 
 .. image:: https://readthedocs.org/projects/tsplib95/badge/?version=latest
-        :target: https://tsplib95.readthedocs.io/en/latest/?badge=latest
+        :target: https://tsplib95.readthedocs.io/?badge=latest
         :alt: Documentation Status
+
 
 
 TSPLIB 95 is a library for working with TSPLIB 95 files.
