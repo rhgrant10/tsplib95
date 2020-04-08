@@ -358,7 +358,7 @@ Distances
 
 Regardless of whether the problem is explicit or function, the distance between
 two nodes can always be found by passing their indicies to
-:func:`problem.get_weight() <tsplib95.models.Problem.get_weight>`.
+:func:`~tsplib95.models.Problem.get_weight`.
 
 .. code-block:: python
 
@@ -385,13 +385,13 @@ Boolean methods
 Problems contain a set of functions that report "emergent" boolean information
 about the problem given its data.
 
-* :func:`tsplib95.models.StandardProblem.is_explicit`
-* :func:`tsplib95.models.StandardProblem.is_full_matrix`
-* :func:`tsplib95.models.StandardProblem.is_weighted`
-* :func:`tsplib95.models.StandardProblem.is_special`
-* :func:`tsplib95.models.StandardProblem.is_complete`
-* :func:`tsplib95.models.StandardProblem.is_symmetric`
-* :func:`tsplib95.models.StandardProblem.is_depictable`
+* :func:`~tsplib95.models.StandardProblem.is_explicit`
+* :func:`~tsplib95.models.StandardProblem.is_full_matrix`
+* :func:`~tsplib95.models.StandardProblem.is_weighted`
+* :func:`~tsplib95.models.StandardProblem.is_special`
+* :func:`~tsplib95.models.StandardProblem.is_complete`
+* :func:`~tsplib95.models.StandardProblem.is_symmetric`
+* :func:`~tsplib95.models.StandardProblem.is_depictable`
 
 
 Extra attributes
@@ -410,16 +410,32 @@ has been set.
 Tracing tours
 -------------
 
-To trace a list of nodes as if it were a tour and obtain the total weight, use
-:func:`tsplib95.models.StandardProblem.trace_tours`::
+Some TSPLIB95 files have a TOURS field that lists one or more tours. Often, the
+tour(s) are in a separate ``.opt.tour`` file.
+:class:`~tsplib95.models.StandardProblem` has a TOURS field, which means it can
+parse these ``.opt.tour`` files as well::
 
-    >>> tours = [tour1, tour2]
-    >>> weight1, weight 2 = problem.trace_tours(tours)
+    >>> opt = tsplib95.load('archives/solutions/tour/gr666.opt.tour')
+    >>> opt.type
+    'TOUR'
+    >>> len(opt.tours)
+    1
+    >>> len(opt.tours[0])
+    666
 
-Note that it returns a list of tour distances, one for each tour given.
+We have 1 tour to trace. We can simply pass the list of tours to
+:func:`~tsplib95.models.StandardProblem.trace_tours`::
+
+    >>> problem = tsplib95.load('archives/problems/tsp/gr666.tsp')
+    >>> >>> problem.trace_tours(opt.tours)
+    [294358]
+
+.. note::
+
+    Note that it returned a list of tour weights, one for each tour given.
 
 For testing purposes, there is also
-:func:`tsplib95.models.StandardProblem.trace_canonical_tour`, which uses the
+:func:`~tsplib95.models.StandardProblem.trace_canonical_tour`, which uses the
 nodes in definition order as a tour and returns the total weight::
 
     >>> weight = problem.trace_canonical_tour()
@@ -428,17 +444,28 @@ nodes in definition order as a tour and returns the total weight::
 Converting problems
 ===================
 
-:func:`tsplib95.models.StandardProblem.get_graph` creates a ``networkx.Graph``
+:func:`~tsplib95.models.StandardProblem.get_graph` creates a ``networkx.Graph``
 instance from the problem data::
 
     >>> G = problem.get_graph()
     >>> G.nodes
     NodeView((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
 
-The graph contains as much information about the nodes and edges as is present
-in the problem instance::
+The graph, nodes, and edges of the object contain as much accessory information
+as is present in the problem instance::
 
-    >>> probelm.
+    >>> G.graph
+    {'name': 'gr17',
+    'comment': '17-city problem (Groetschel)',
+    'type': 'TSP',
+    'dimension': 17,
+    'capacity': 0}
+    >>> G.nodes[0]
+    {'coord': None, 'display': None, 'demand': None, 'is_depot': False}
+    >>> G.edges[0, 1]
+    {'weight': 633, 'is_fixed': False}
+
+
 
 .. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
 .. _TSPLIB problem files: https://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp/
