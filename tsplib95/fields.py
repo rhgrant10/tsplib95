@@ -1,12 +1,40 @@
 # -*- coding: utf-8 -*-
-import itertools
 import re
 
 from . import transformers as T
 from . import exceptions
 
 
+__all__ = [
+    'Field',
+    'TransformerField',
+    'StringField',
+    'IntegerField',
+    'FloatField',
+    'NumberField',
+    'IndexedCoordinatesField',
+    'AdjacencyListField',
+    'EdgeListField',
+    'MatrixField',
+    'EdgeDataField',
+    'DepotsField',
+    'DemandsField',
+    'ToursField',
+]
+
+
 class Field:
+    """Contains base functionality for all fields.
+
+    The default value can be a callable, in which case it is invoked for each
+    call to :func:`get_default_value`. The default can be set on an instance
+    or as a class attribute, but the class attribute is only checked when the
+    field is initially created.
+
+    :param str keyword: keyword (typically all caps)
+    :param default: a default value or callable that will return a default
+    """
+
     default = None
 
     def __init__(self, keyword, *, default=None):
@@ -17,21 +45,53 @@ class Field:
         return f'<{self.__class__.__qualname__}({repr(self.keyword)})>'
 
     def get_default_value(self):
+        """Return the default value.
+
+        :return: the default value
+        """
         if callable(self.default):
             return self.default()
         return self.default
 
     def parse(self, text):
+        """Convert text into a value.
+
+        This must be implemented in a subclass.
+
+        :param str text:
+        :return: a value
+        """
         raise NotImplementedError()
 
     def render(self, value):
+        """Convert a value into text.
+
+        This must be implemented in a subclass.
+
+        :param value: a value
+        :return: text
+        :rtype: str
+        """
         raise NotImplementedError()
 
     def validate(self, value):
-        pass
+        """Validate a value.
+
+        Raise an exception if the value fails validation.
+
+        The default implementation does nothing.
+
+        :param value: a value
+        :raises Exception: if the value does not pass validation
+        """
 
 
 class TransformerField(Field):
+    """Field that delegates to a :class:`~tsplib95.transformers.Transformer`.
+
+    :param str keyword: keyword
+    :param callable transformer: transformer to use
+    """
 
     def __init__(self, keyword, *, transformer=None, **kwargs):
         super().__init__(keyword, **kwargs)
@@ -39,6 +99,11 @@ class TransformerField(Field):
 
     @classmethod
     def build_transformer(cls):
+        """Construct an appropriate transformer for the field.
+
+        :return: transformer
+        :rtype: :class:`~tsplib95.transformers.Transformer`
+        """
         return T.Transformer()
 
     @property
@@ -52,6 +117,11 @@ class TransformerField(Field):
         self._tf = value
 
     def parse(self, text):
+        """Parse the text into a value using the transformer.
+
+        :param str text: text to parse
+        :return: value
+        """
         try:
             return self.tf.parse(text)
         except exceptions.ParsingError as e:
@@ -59,6 +129,11 @@ class TransformerField(Field):
             raise exceptions.ParsingError.wrap(e, context)
 
     def render(self, value):
+        """Render the value into text using the transformer.
+
+        :param str text: value to render
+        :return: text
+        """
         try:
             return self.tf.render(value)
         except exceptions.RenderingError as e:
@@ -66,6 +141,10 @@ class TransformerField(Field):
             raise exceptions.RenderingError.wrap(e, context)
 
     def validate(self, value):
+        """Validate the value using the transformer.
+
+        :param str text: value to validate
+        """
         return self.tf.validate(value)
 
 

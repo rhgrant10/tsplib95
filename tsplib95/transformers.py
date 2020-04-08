@@ -5,16 +5,31 @@ from . import utils
 
 
 class Transformer:
+    """Reusable transformer between text and data."""
+
     def parse(self, text):
+        """Return the value of the text.
+
+        :param str text: the text
+        :return: the value
+        """
         return text
 
     def render(self, value):
+        """Return the text for the value.
+
+        :param str value: the value
+        :return: the text
+        """
         if value is None:
             return ''
         return str(value)
 
     def validate(self, value):
-        pass
+        """Validate the value.
+
+        :param value: the value
+        """
 
 
 class FuncT(Transformer):
