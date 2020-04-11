@@ -4,6 +4,17 @@ from . import exceptions
 from . import utils
 
 
+__all__ = [
+    'Transformer',
+    'FuncT',
+    'NumberT',
+    'ContainerT',
+    'ListT',
+    'MapT',
+    'UnionT',
+]
+
+
 class Transformer:
     """Reusable transformer between text and data."""
 
@@ -12,6 +23,8 @@ class Transformer:
 
         :param str text: the text
         :return: the value
+        :raises ~tsplib95.exceptions.ParsingError: if the text cannot be parsed
+                                                   into a value
         """
         return text
 
@@ -33,8 +46,19 @@ class Transformer:
 
 
 class FuncT(Transformer):
-    def __init__(self, *, func, **kwargs):
-        super().__init__(**kwargs)
+    """Transformer that simply wraps a parsing function.
+
+    The parsing function must accept a single positional argument for the text
+    to parse. It must parse and return the value.
+
+    Values are rendered back into values using the builtin :func:`str`, so it's
+    generally best to use this for primitives.
+
+    :param callable func: parsing function
+    """
+
+    def __init__(self, *, func):
+        super().__init__()
         self.func = func
 
     def parse(self, text):
@@ -45,6 +69,8 @@ class FuncT(Transformer):
 
 
 class NumberT(Transformer):
+    """Transformer for any number, int or float."""
+
     def parse(self, text):
         for func in (int, float):
             try:
@@ -56,6 +82,17 @@ class NumberT(Transformer):
 
 
 class ContainerT(Transformer):
+    """Transformer that acts as a generic container.
+
+    :param value: transformer for each item
+    :type value: :class:`~tsplib95.transformers.Transformer`
+    :param str sep: separator between items
+    :param str terminal: text that marks the end
+    :param bool terminal_required: whether the terminal is required
+    :param int size: required number of items
+    :param bool filter_empty: filter out empty items (zero-length/blank)
+    """
+
     def __init__(self, *, value=None, sep=None, terminal=None,
                  terminal_required=True, size=None, filter_empty=True):
         self.child_tf = value or Transformer()
