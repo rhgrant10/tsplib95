@@ -26,46 +26,16 @@ TSPLIB 95 is a library for working with TSPLIB 95 files.
 * Free software: Apache Software License 2.0
 * Documentation: https://tsplib95.readthedocs.io.
 
-For now...
-
-* the documentation is not complete
-* only 3.6+ is supported
-
 Features
 --------
 
-- read and use the TSPLIB95 file format like a boss
-- easily convert problems into ``networkx.Graph`` instances
-- supports and implements the following ``EDGE_WEIGHT_TYPE`` s
+- **read** and **write** TSPLIB95 file format like a boss
+- easily **convert** problems into ``networkx.Graph`` instances
+- supports **all** fields in the original standard
+- allows completely **custom** field and problem declarations
 
-  - ``EXPLICIT``
-  - ``EUC_2D``
-  - ``EUC_3D``
-  - ``MAX_2D``
-  - ``MAX_3D``
-  - ``MAN_2D``
-  - ``MAN_3D``
-  - ``CEIL_2D``
-  - ``GEO``
-  - ``ATT``
-  - ``XRAY1``
-  - ``XRAY2``
-
-- supports the following ``EDGE_WEIGHT_FORMAT`` s
-
-  - ``FULL_MATRIX``
-  - ``UPPER_ROW``
-  - ``LOWER_ROW``
-  - ``UPPER_DIAG_ROW``
-  - ``LOWER_DIAG_ROW``
-  - ``UPPER_COL``
-  - ``LOWER_COL``
-  - ``UPPER_DIAG_COL``
-  - ``LOWER_DIAG_COL``
-
-- supports ``SPECIAL`` ``FUNCTION`` edge weights too
-
-It also has a CLI program to print a tabular summary of one or more TSPLIB95 files. No idea why anyone would want that, but there you have it.
+It also has a CLI program to print a tabular summary of one or more TSPLIB95
+files... no idea why anyone would want that, but there you have it nonetheless.
 
 
 Credits
