@@ -467,6 +467,6 @@ as is present in the problem instance::
 
 
 
-.. _TSPLIB: https://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/index.html
-.. _TSPLIB problem files: https://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp/
-.. _TSPLIB95 file format standards: https://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp95.pdf
+.. _TSPLIB: http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/
+.. _TSPLIB problem files: http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp/ALL_tsp.tar.gz
+.. _TSPLIB95 file format standards: http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp95.pdf
