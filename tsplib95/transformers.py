@@ -103,6 +103,11 @@ class ContainerT(Transformer):
         self.filter_empty = filter_empty
 
     def parse(self, text):
+        """Parse the text into a container of items.
+
+        :param str text: the text to parse
+        return: container
+        """
         # start without unpredictable whitespace
         text = text.strip()
 
@@ -162,6 +167,11 @@ class ContainerT(Transformer):
         return self.pack(items)
 
     def render(self, container):
+        """Render the container into text.
+
+        :param container: container to render
+        return: text
+        """
         # unpack the items from the container and render them
         items = self.unpack(container)
         rendered = list(self.render_item(i) for i in items)
@@ -174,25 +184,60 @@ class ContainerT(Transformer):
         return self.join_items(rendered)
 
     def parse_item(self, text):
+        """Parse the text into a single item.
+
+        :param str text: the text to parse
+        return: container
+        """
         return self.child_tf.parse(text)
 
     def render_item(self, item):
+        """Render the item into text.
+
+        :param item: item to render
+        return: text
+        """
         return self.child_tf.render(item)
 
     def split_items(self, text):
+        """Split the text into multiple items.
+
+        :param str text: text to split
+        :return: muliple items
+        :rtype: list
+        """
         return self.sep.split(text)
 
     def join_items(self, items):
+        """Join zero or more items into a single text.
+
+        :param list items: items to join
+        :return: joined text
+        :rtype: str
+        """
         return self.sep.join(items)
 
     def pack(self, items):
+        """Pack the given items into a container.
+
+        :param list items: items to pack
+        :return: container with items in it
+        """
         raise NotImplementedError()
 
     def unpack(self, container):
+        """Unpack items from the container.
+
+        :param container: container with items in it
+        :return: items from container
+        :rtype: list
+        """
         raise NotImplementedError()
 
 
 class ListT(ContainerT):
+    """Transformer for a list of items."""
+
     def pack(self, items):
         return list(items)
 
@@ -201,6 +246,13 @@ class ListT(ContainerT):
 
 
 class MapT(ContainerT):
+    """Transformer for a key-value mapping of items.
+
+    :param str kv_sep: separator between keys and values
+    :param key: transformer for the keys
+    :type key: :class:`~tsplib95.transformers.Transformer`
+    """
+
     def __init__(self, *, kv_sep=None, key=None, **kwargs):
         super().__init__(**kwargs)
         self.key_tf = key or Transformer()
@@ -226,15 +278,38 @@ class MapT(ContainerT):
         return self.kv_sep.join([key, value])
 
     def parse_key(self, text):
+        """Parse the text into a key.
+
+        :param str text: the text to parse
+        return: key
+        """
         return self.key_tf.parse(text)
 
     def render_key(self, key):
+        """Render the key into text.
+
+        :param key: the key to render
+        return: text
+        :rtype: str
+        """
         return self.key_tf.render(key)
 
     def parse_value(self, text):
+        """Parse the text into a value.
+
+        :param str text: the text to parse
+        return: value
+        """
         return self.child_tf.parse(text)
 
     def render_value(self, value):
+        """Render the value into text.
+
+        :param value: the value to render
+        return: text
+        :rtype: str
+        """
+
         return self.child_tf.render(value)
 
     def pack(self, items):
