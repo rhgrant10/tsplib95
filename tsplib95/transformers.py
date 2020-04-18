@@ -106,7 +106,7 @@ class ContainerT(Transformer):
         """Parse the text into a container of items.
 
         :param str text: the text to parse
-        return: container
+        :return: container
         """
         # start without unpredictable whitespace
         text = text.strip()
@@ -170,7 +170,7 @@ class ContainerT(Transformer):
         """Render the container into text.
 
         :param container: container to render
-        return: text
+        :return: text
         """
         # unpack the items from the container and render them
         items = self.unpack(container)
@@ -187,7 +187,7 @@ class ContainerT(Transformer):
         """Parse the text into a single item.
 
         :param str text: the text to parse
-        return: container
+        :return: container
         """
         return self.child_tf.parse(text)
 
@@ -195,7 +195,7 @@ class ContainerT(Transformer):
         """Render the item into text.
 
         :param item: item to render
-        return: text
+        :return: text
         """
         return self.child_tf.render(item)
 
@@ -281,7 +281,7 @@ class MapT(ContainerT):
         """Parse the text into a key.
 
         :param str text: the text to parse
-        return: key
+        :return: key
         """
         return self.key_tf.parse(text)
 
@@ -289,7 +289,7 @@ class MapT(ContainerT):
         """Render the key into text.
 
         :param key: the key to render
-        return: text
+        :return: text
         :rtype: str
         """
         return self.key_tf.render(key)
@@ -298,7 +298,7 @@ class MapT(ContainerT):
         """Parse the text into a value.
 
         :param str text: the text to parse
-        return: value
+        :return: value
         """
         return self.child_tf.parse(text)
 
@@ -306,7 +306,7 @@ class MapT(ContainerT):
         """Render the value into text.
 
         :param value: the value to render
-        return: text
+        :return: text
         :rtype: str
         """
 

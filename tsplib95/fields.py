@@ -47,7 +47,10 @@ class Field:
     def get_default_value(self):
         """Return the default value.
 
+        Callables are called for a default value to return each time.
+
         :return: the default value
+        :rtype: Any
         """
         if callable(self.default):
             return self.default()
@@ -149,12 +152,16 @@ class TransformerField(Field):
 
 
 class StringField(TransformerField):
+    """Simple string field."""
+
     @classmethod
     def build_transformer(cls):
         return T.FuncT(func=str)
 
 
 class IntegerField(TransformerField):
+    """Simple integer field."""
+
     default = 0
 
     @classmethod
@@ -163,6 +170,8 @@ class IntegerField(TransformerField):
 
 
 class FloatField(TransformerField):
+    """Simple float field."""
+
     default = 0.0
 
     @classmethod
@@ -171,6 +180,8 @@ class FloatField(TransformerField):
 
 
 class NumberField(TransformerField):
+    """Number field, supporting ints and floats."""
+
     default = 0
 
     @classmethod
@@ -179,21 +190,25 @@ class NumberField(TransformerField):
 
 
 class IndexedCoordinatesField(TransformerField):
+    """Field for coordinates by index.
+
+    When given, ``dimensions`` stipulates the possible valid dimensionalities
+    for the coordinates. For exapmle, ``dimensions=(2, 3)`` indicates the
+    coordinates are either all 2d or all 3d, whereas ``dimensions=2`` indicates
+    all coordinates must be 2d. The check is only enforced during validation.
+
+    :param dimensions: one or more valid dimensionalities
+    """
+
     default = dict
 
     def __init__(self, *args, dimensions=None, **kwargs):
-        """Coordinates listed by integer index.
-
-        Dimensions can be a single value, a tuple of possible values, or none.
-        Every coordinate must be the same dimensionality, and if present, this
-        value dictates the valid dimensionalities. The check is enforced
-        during validation.
-        """
         super().__init__(*args, **kwargs)
-        self.dimensions = self.tuplize(dimensions)
+        self.dimensions = self._tuplize(dimensions)
 
     @staticmethod
-    def tuplize(dimensions):
+    def _tuplize(dimensions):
+        # helper to accept either a tuple, a single value, or None
         try:
             return tuple(iter(dimensions))
         except Exception:
@@ -215,6 +230,8 @@ class IndexedCoordinatesField(TransformerField):
 
 
 class AdjacencyListField(TransformerField):
+    """Field for an adjancency list."""
+
     default = dict
 
     @classmethod
@@ -226,6 +243,8 @@ class AdjacencyListField(TransformerField):
 
 
 class EdgeListField(TransformerField):
+    """Field for a list of edges."""
+
     default = list
 
     @classmethod
@@ -235,6 +254,8 @@ class EdgeListField(TransformerField):
 
 
 class MatrixField(TransformerField):
+    """Field for a matrix of numbers."""
+
     default = list
 
     @classmethod
@@ -244,6 +265,8 @@ class MatrixField(TransformerField):
 
 
 class EdgeDataField(TransformerField):
+    """Field for edge data."""
+
     default = dict
 
     @classmethod
@@ -254,6 +277,8 @@ class EdgeDataField(TransformerField):
 
 
 class DepotsField(TransformerField):
+    """Field for depots."""
+
     default = list
 
     @classmethod
@@ -263,6 +288,8 @@ class DepotsField(TransformerField):
 
 
 class DemandsField(TransformerField):
+    """Field for demands."""
+
     default = dict
 
     @classmethod
@@ -273,6 +300,8 @@ class DemandsField(TransformerField):
 
 
 class ToursField(Field):
+    """Field for one or more tours."""
+
     default = list
 
     def __init__(self, *args, require_terminal=True):
@@ -283,6 +312,12 @@ class ToursField(Field):
         self._any_terminal = re.compile(rf'(?:\s+|\b){self.terminal}(?:\b|\s+)')  # noqa: E501
 
     def parse(self, text):
+        """Parse the text into a list of tours.
+        
+        :param str text: text to parse
+        :return: tours
+        :rtype: list
+        """
         text = text.strip()
         if not text:
             return []
@@ -319,6 +354,12 @@ class ToursField(Field):
         return tours
 
     def render(self, tours):
+        """Render the tours as text.
+        
+        :param list tours: tours to render
+        :return: rendered text
+        :rtype: str
+        """
         if not tours:
             return ''
 
