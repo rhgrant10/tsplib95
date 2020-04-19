@@ -2,6 +2,23 @@
 History
 =======
 
+
+0.7.0 (2020-04-18)
+------------------
+
+* Refactored the models to unify the ``Problem`` and ``Solution`` classes into the new ``StandardProblem`` class.
+* 93% test coverage, including distance functions, parsing functions, and rendering functions.
+* You can finally *write* problems in TSPLIB95 format! Render to text, write to file, or save to filepath.
+* Parsing text, reading files, and loading filepaths are all now supported.
+* Deprecated the old loading utils.
+* Custom problems now supported by allowing you to define your own fields.
+* Library exceptions for parsing and rendering.
+* Numerous bugfixes for the distance functions (ATT, XRAY*, GEO).
+* Improved the CLI to use a pager and proper column tabulation.
+* Made some progress modernizing the FORTRAN code for xray problems.
+* Added codecoverage metrics and badge.
+
+
 0.6.1 (2020-01-04)
 ------------------
 
