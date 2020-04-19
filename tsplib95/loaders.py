@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from depreated import deprecated
+from deprecated import deprecated
 
 from . import models
 
@@ -50,7 +50,7 @@ def parse(text, problem_class=None, special=None):
 
 
 @deprecated(
-    verison='7.0.0',
+    version='7.0.0',
     reason='Will be removed in newer versions. Use `tsplib95.load` instead.'
 )
 def load_problem(filepath, special=None):
@@ -65,7 +65,7 @@ def load_problem(filepath, special=None):
 
 
 @deprecated(
-    verison='7.0.0',
+    version='7.0.0',
     reason='Will be removed in newer versions. Use `tsplib95.load` instead.'
 )
 def load_solution(filepath):
@@ -79,7 +79,7 @@ def load_solution(filepath):
 
 
 @deprecated(
-    verison='7.0.0',
+    version='7.0.0',
     reason='Will be removed in newer versions. Use `tsplib95.load` instead.'
 )
 def load_unknown(filepath):
@@ -95,7 +95,7 @@ def load_unknown(filepath):
 
 
 @deprecated(
-    verison='7.0.0',
+    version='7.0.0',
     reason='Will be removed in newer versions. Use `tsplib95.parse` instead.'
 )
 def load_problem_fromstring(text, special=None):
@@ -110,7 +110,7 @@ def load_problem_fromstring(text, special=None):
 
 
 @deprecated(
-    verison='7.0.0',
+    version='7.0.0',
     reason='Will be removed in newer versions. Use `tsplib95.parse` instead.'
 )
 def load_solution_fromstring(text):
@@ -124,7 +124,7 @@ def load_solution_fromstring(text):
 
 
 @deprecated(
-    verison='7.0.0',
+    version='7.0.0',
     reason='Will be removed in newer versions. Use `tsplib95.parse` instead.'
 )
 def load_unknown_fromstring(text):
