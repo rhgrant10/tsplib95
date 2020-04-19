@@ -313,7 +313,7 @@ class ToursField(Field):
 
     def parse(self, text):
         """Parse the text into a list of tours.
-        
+
         :param str text: text to parse
         :return: tours
         :rtype: list
@@ -355,7 +355,7 @@ class ToursField(Field):
 
     def render(self, tours):
         """Render the tours as text.
-        
+
         :param list tours: tours to render
         :return: rendered text
         :rtype: str

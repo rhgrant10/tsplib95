@@ -13,6 +13,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'Click>=6.0',
+    'Deprecated~=1.2.9',
     'networkx~=2.1',
     'tabulate~=0.8.7',
 ]

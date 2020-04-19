@@ -23,5 +23,5 @@ load = loaders.load
 read = loaders.read
 
 # legacy
-load_unknown = load_solution = load_problem = loaders.load
-load_unknown_fromstring = load_solution_fromstring = load_problem_fromstring = loaders.parse  # noqa: E501
+load_problem = loaders.load_problem
+load_solution = loaders.load_solution

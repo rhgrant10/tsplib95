@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from depreated import deprecated
+
 from . import models
 
 
@@ -38,3 +40,100 @@ def parse(text, problem_class=None, special=None):
     """
     Problem = problem_class or models.StandardProblem
     return Problem.parse(text, special=special)
+
+
+###############################################################################
+#                                                                             #
+#                        DEPRECATED LOADERS BELOW                             #
+#                                                                             #
+###############################################################################
+
+
+@deprecated(
+    verison='7.0.0',
+    reason='Will be removed in newer versions. Use `tsplib95.load` instead.'
+)
+def load_problem(filepath, special=None):
+    """Load a problem at the given filepath.
+
+    :param str filepath: path to a TSPLIB problem file
+    :param callable special: special/custom distance function
+    :return: problem instance
+    :rtype: :class:`~Problem`
+    """
+    return load(filepath, special=special)
+
+
+@deprecated(
+    verison='7.0.0',
+    reason='Will be removed in newer versions. Use `tsplib95.load` instead.'
+)
+def load_solution(filepath):
+    """Load a solution at the given filepath.
+
+    :param str filepath: path to a TSPLIB solution file
+    :return: solution instance
+    :rtype: :class:`~Solution`
+    """
+    return load(filepath)
+
+
+@deprecated(
+    verison='7.0.0',
+    reason='Will be removed in newer versions. Use `tsplib95.load` instead.'
+)
+def load_unknown(filepath):
+    """Load any TSPLIB file.
+
+    This is particularly useful when you do not know in advance
+    whether the file contains a problem or a solution.
+
+    :param str filepath: path to a TSPLIB problem file
+    :return: either a problem or solution instance
+    """
+    return load(filepath)
+
+
+@deprecated(
+    verison='7.0.0',
+    reason='Will be removed in newer versions. Use `tsplib95.parse` instead.'
+)
+def load_problem_fromstring(text, special=None):
+    """Load a problem from raw text.
+
+    :param str text: text of a TSPLIB problem
+    :param callable special: special/custom distance function
+    :return: problem instance
+    :rtype: :class:`~Problem`
+    """
+    return parse(text, special=special)
+
+
+@deprecated(
+    verison='7.0.0',
+    reason='Will be removed in newer versions. Use `tsplib95.parse` instead.'
+)
+def load_solution_fromstring(text):
+    """Load a solution from raw text.
+
+    :param str text: text of a TSPLIB solution
+    :return: solution instance
+    :rtype: :class:`~Solution`
+    """
+    return parse(text)
+
+
+@deprecated(
+    verison='7.0.0',
+    reason='Will be removed in newer versions. Use `tsplib95.parse` instead.'
+)
+def load_unknown_fromstring(text):
+    """Load any problem/solution from raw text.
+
+    This is particularly useful when you do not know in advance
+    whether the file contains a problem or a solution.
+
+    :param str text: text of a TSPLIB problem/solution
+    :return: either a problem or solution instance
+    """
+    return parse(text)
