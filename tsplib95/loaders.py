@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from deprecated import deprecated
+from deprecated.sphinx import deprecated
 
 from . import models
 
