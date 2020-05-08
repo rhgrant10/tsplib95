@@ -455,22 +455,25 @@ class StandardProblem(Problem):
         :raises ValueError: if the nodes are undefined
         """
         if self.node_coords:
-            return iter(self.node_coords)
+            return iter(sorted(self.node_coords))
 
         if self.display_data:
-            return iter(self.display_data)
+            return iter(sorted(self.display_data))
 
         if self.edge_data_format == 'EDGE_LIST':
             nodes = set()
             for a, b in self.edge_data:
                 nodes.update({a, b})
-            return iter(nodes)
+            return iter(sorted(nodes))
 
         if self.edge_data_format == 'ADJ_LIST':
             nodes = set()
             for a, ends in self.edge_data.items():
                 nodes.update({a, *ends})
-            return iter(nodes)
+            return iter(sorted(nodes))
+
+        if self.demands:
+            return iter(sorted(self.demands))
 
         try:
             return iter(range(self.dimension))
