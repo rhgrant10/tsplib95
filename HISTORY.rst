@@ -2,6 +2,11 @@
 History
 =======
 
+0.7.1 (2020-05-08)
+------------------
+
+* Bugfix for ``StandardProblem.get_nodes`` ignoring node indices specified in demands
+
 
 0.7.0 (2020-04-18)
 ------------------

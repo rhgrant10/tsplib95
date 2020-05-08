@@ -4,7 +4,7 @@
 
 __author__ = """Robert Grant"""
 __email__ = 'rhgrant10@gmail.com'
-__version__ = '0.7.0'
+__version__ = '0.7.1'
 
 
 from . import bisep  # noqa: F401
