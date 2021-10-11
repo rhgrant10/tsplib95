@@ -237,8 +237,8 @@ class AdjacencyListField(TransformerField):
     @classmethod
     def build_transformer(cls):
         return T.MapT(key=T.FuncT(func=int),
-                      value=T.ListT(value=T.FuncT(func=int)),
-                      sep="\n",
+                      value=T.ListT(value=T.FuncT(func=int), terminal='-1'),
+                      sep='\n',
                       terminal='-1')
 
 
