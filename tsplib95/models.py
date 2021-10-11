@@ -99,7 +99,7 @@ class Problem(metaclass=FileMeta):
         # prepare the regex for all known keys
         keywords = '|'.join(cls.fields_by_keyword)
         sep = r'''\s*:\s*|\s*\n'''
-        pattern = f'({keywords}|EOF)(?:{sep})'
+        pattern = f'({keywords}|EOF)(?:{sep})|EOF'
 
         # split the whole text by known keys
         regex = re.compile(pattern, re.M)
@@ -112,7 +112,7 @@ class Problem(metaclass=FileMeta):
         # parse into a dictionary
         data = {}
         for keyword, value in zip(field_keywords, field_values):
-            if keyword != 'EOF':
+            if keyword and keyword != 'EOF':
                 field = cls.fields_by_keyword[keyword]
                 name = cls.names_by_keyword[keyword]
                 data[name] = field.parse(value.strip())
