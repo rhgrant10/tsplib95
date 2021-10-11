@@ -20,4 +20,4 @@ def test_parse(field, text, value, exc):
         with pytest.raises(exc):
             field.parse(text)
     else:
-        field.parse(text) == value
+        assert field.parse(text) == value
