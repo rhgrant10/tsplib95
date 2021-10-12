@@ -17,6 +17,7 @@ def TestProblem():
 @pytest.mark.parametrize('text,value,exc', [
     ('FOO: 42\nBAR: answer', {'foo': 42, 'bar': 'answer'}, None),
     ('FOO: 4.2\nBAR: answer', None, E.ParsingError),
+    ('FOO: 42\nBAR: answer\nEOF\n', {'foo': 42, 'bar': 'answer'}, None)
 ])
 def test_model_parse(TestProblem, text, value, exc):
     if exc:
@@ -29,8 +30,8 @@ def test_model_parse(TestProblem, text, value, exc):
 
 
 @pytest.mark.parametrize('value,text,exc', [
-    ({'foo': 42, 'bar': 'answer'}, 'FOO: 42\nBAR: answer\nEOF', None),
-    ({'foo': 42, 'bar': 'answer', 'baz': 'wat'}, 'FOO: 42\nBAR: answer\nEOF', None),  # noqa: E501
+    ({'foo': 42, 'bar': 'answer'}, 'FOO: 42\nBAR: answer\nEOF\n', None),
+    ({'foo': 42, 'bar': 'answer', 'baz': 'wat'}, 'FOO: 42\nBAR: answer\nEOF\n', None),  # noqa: E501
 ])
 def test_model_render(TestProblem, value, text, exc):
     problem = TestProblem(**value)

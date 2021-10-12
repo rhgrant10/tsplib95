@@ -99,7 +99,7 @@ class Problem(metaclass=FileMeta):
         # prepare the regex for all known keys
         keywords = '|'.join(cls.fields_by_keyword)
         sep = r'''\s*:\s*|\s*\n'''
-        pattern = f'({keywords}|EOF)(?:{sep})|EOF'
+        pattern = f'({keywords}|EOF)(?:{sep})'
 
         # split the whole text by known keys
         regex = re.compile(pattern, re.M)
@@ -228,7 +228,7 @@ class Problem(metaclass=FileMeta):
         for keyword, value in rendered.items():
             sep = ':\n' if '\n' in value else ': '
             kvpairs.append(f'{keyword}{sep}{value}')
-        kvpairs.append('EOF')
+        kvpairs.append('EOF\n')
 
         # join and return the result
         return '\n'.join(kvpairs)
