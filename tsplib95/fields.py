@@ -238,7 +238,7 @@ class AdjacencyListField(TransformerField):
     def build_transformer(cls):
         return T.MapT(key=T.FuncT(func=int),
                       value=T.ListT(value=T.FuncT(func=int)),
-                      sep="\n",
+                      sep=('-1', ' -1\n'),
                       terminal='-1')
 
 
@@ -249,7 +249,7 @@ class EdgeListField(TransformerField):
 
     @classmethod
     def build_transformer(cls):
-        edge = T.TupleT(value=T.FuncT(func=int), size=2)
+        edge = T.ListT(value=T.FuncT(func=int), size=2)
         return T.ListT(value=edge, terminal='-1', sep='\n')
 
 
@@ -273,7 +273,7 @@ class EdgeDataField(TransformerField):
     def build_transformer(cls):
         adj_list = AdjacencyListField.build_transformer()
         edge_list = EdgeListField.build_transformer()
-        return T.UnionT(edge_list, adj_list)
+        return T.UnionT(adj_list, edge_list)
 
 
 class DepotsField(TransformerField):

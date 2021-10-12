@@ -244,14 +244,6 @@ class ListT(ContainerT):
     def unpack(self, container):
         return list(container)
 
-class TupleT(ContainerT):
-    """Transformer for tuples"""
-
-    def pack(self, items):
-        return tuple(items)
-
-    def unpack(self, container):
-        return tuple(container)
 
 class MapT(ContainerT):
     """Transformer for a key-value mapping of items.
