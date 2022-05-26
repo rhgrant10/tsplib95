@@ -9,7 +9,7 @@ def edge_list_field():
 
 
 def test_parse(edge_list_field):
-    assert edge_list_field.parse('1 2\n3 4\n-1') == [[1, 2], [3, 4]]
+    assert edge_list_field.parse('1 2\n3 4\n-1') == [(1, 2), (3, 4)]
 
 
 def test_render(edge_list_field):
