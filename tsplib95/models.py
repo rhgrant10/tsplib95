@@ -112,7 +112,7 @@ class Problem(metaclass=FileMeta):
         # parse into a dictionary
         data = {}
         for keyword, value in zip(field_keywords, field_values):
-            if keyword != 'EOF':
+            if keyword and keyword != 'EOF':
                 field = cls.fields_by_keyword[keyword]
                 name = cls.names_by_keyword[keyword]
                 data[name] = field.parse(value.strip())
@@ -228,7 +228,7 @@ class Problem(metaclass=FileMeta):
         for keyword, value in rendered.items():
             sep = ':\n' if '\n' in value else ': '
             kvpairs.append(f'{keyword}{sep}{value}')
-        kvpairs.append('EOF')
+        kvpairs.append('EOF\n')
 
         # join and return the result
         return '\n'.join(kvpairs)
