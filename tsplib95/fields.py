@@ -284,7 +284,7 @@ class DepotsField(TransformerField):
     @classmethod
     def build_transformer(cls):
         depot = T.FuncT(func=int)
-        return T.ListT(value=depot, terminal='-1', sep='\n')
+        return T.ListT(value=depot, sep='\n', terminal='-1', terminal_required=False)
 
 
 class DemandsField(TransformerField):
