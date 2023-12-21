@@ -98,7 +98,7 @@ class Problem(metaclass=FileMeta):
         """
         # prepare the regex for all known keys
         keywords = '|'.join(cls.fields_by_keyword)
-        sep = r'''\s*:\s*|\s*\n'''
+        sep = r'''\s*:\s*|\s*\n|\Z'''
         pattern = f'({keywords}|EOF)(?:{sep})'
 
         # split the whole text by known keys
