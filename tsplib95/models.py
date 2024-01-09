@@ -103,6 +103,7 @@ class Problem(metaclass=FileMeta):
 
         # split the whole text by known keys
         regex = re.compile(pattern, re.M)
+        text += '\n' # ensure EOF is matched
         __, *results = regex.split(text)
 
         # pair keys and values
