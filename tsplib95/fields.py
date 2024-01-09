@@ -369,7 +369,7 @@ class ToursField(Field):
                 tour_string = ' '.join(str(i) for i in tour)
                 tour_strings.append(f'{tour_string} -1')
 
-        if tour_strings:
+        if len(tour_strings) > 1:
             tour_strings += ['-1']
 
         return '\n'.join(tour_strings)
